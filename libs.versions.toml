@@ -1,0 +1,22 @@
+[versions]
+lombok = "edge-SNAPSHOT"
+adventure = "4.25.0"
+paper = "1.21.3-R0.1-SNAPSHOT"
+velocity = "3.4.0-SNAPSHOT"
+classgraph = "4.8.179"
+acf= "0.5.1-SNAPSHOT"
+configlib= "4.6.3"
+
+[libraries]
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
+adventure-text-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
+paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
+classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
+acf-paper = { group = "co.aikar", name = "acf-paper", version.ref = "acf" }
+acf-velocity = { group = "co.aikar", name = "acf-velocity", version.ref = "acf" }
+configlib-yaml = { group = "de.exlll", name = "configlib-yaml", version.ref = "configlib" }
+
+[bundles]
+adventure = ["adventure-api", "adventure-text-minimessage"]
