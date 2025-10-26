@@ -11,8 +11,9 @@ repositories {
 }
 
 dependencies {
-    shadow(project(":api", "shadow"))
-    shadow(project(":configuration", "shadow"))
+    implementation(project(":api", "shadow"))
+    implementation(project(":configuration", "shadow"))
+
     compileOnly(libs.paper)
     implementation(libs.acf.paper)
 }

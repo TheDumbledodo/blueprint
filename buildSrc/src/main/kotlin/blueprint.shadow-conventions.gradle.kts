@@ -13,7 +13,7 @@ tasks {
         }
 
         mergeServiceFiles()
-        exclude("**/*.properties")
+        exclude("*.properties")
     }
 
     assemble {

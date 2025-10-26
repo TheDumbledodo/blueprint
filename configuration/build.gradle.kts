@@ -6,7 +6,6 @@ plugins {
 
 repositories {
     mavenCentral()
-
     maven("https://projectlombok.org/edge-releases")
 }
 

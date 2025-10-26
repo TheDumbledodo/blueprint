@@ -42,7 +42,6 @@ public class SmallCaps {
         put('8', '₈');
         put('9', '₉');
         put(':', '︰');
-
     }};
 
     public static String translate(String input) {
