@@ -11,6 +11,7 @@ configlib= "4.6.3"
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
 adventure-text-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
+adventure-text-serializer-legacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
 paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
@@ -20,3 +21,4 @@ configlib-yaml = { group = "de.exlll", name = "configlib-yaml", version.ref = "c
 
 [bundles]
 adventure = ["adventure-api", "adventure-text-minimessage"]
+adventure-serializers = ["adventure-text-serializer-legacy"]

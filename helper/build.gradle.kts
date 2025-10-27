@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     shadow(libs.bundles.adventure)
+    shadow(libs.bundles.adventure.serializers)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

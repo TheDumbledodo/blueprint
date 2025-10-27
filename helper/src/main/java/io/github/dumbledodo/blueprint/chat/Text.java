@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,13 @@ public class Text {
             return Component.empty();
         }
         return MINI_MESSAGE.deserialize(text);
+    }
+
+    public static String translateToLegacyString(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+        return LegacyComponentSerializer.legacyAmpersand().serialize(translate(input));
     }
 
     public static Component[] translate(String... text) {
