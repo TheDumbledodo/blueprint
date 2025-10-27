@@ -1,5 +1,6 @@
 package io.github.dumbledodo.blueprint;
 
+import co.aikar.commands.PaperCommandManager;
 import com.github.dumbledodo.blueprint.lifecycle.ComponentRegistry;
 import com.github.dumbledodo.blueprint.service.Services;
 import de.exlll.configlib.YamlConfigurationProperties;
@@ -20,6 +21,8 @@ public class Blueprint {
         Services.register(plugin);
         Services.register(Plugin.class, plugin);
         Services.register(objects);
+
+        Services.register(new PaperCommandManager(plugin));
 
         final PluginManager pluginManager = Bukkit.getPluginManager();
 
