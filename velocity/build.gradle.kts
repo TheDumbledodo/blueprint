@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation(project(":api", "shadow"))
+    implementation(project(":helper", "shadow"))
     implementation(project(":configuration"))
 
     compileOnly(libs.velocity)

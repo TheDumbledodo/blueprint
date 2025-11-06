@@ -53,7 +53,7 @@ public abstract class AbstractConfig {
             final YamlConfigurationProperties properties = configuration.getProperties();
             final Path configFile = getConfigFile(configuration);
 
-            final AbstractConfig config = YamlConfigurations.load(configFile, clazz, properties);
+            final AbstractConfig config = YamlConfigurations.update(configFile, clazz, properties);
 
             for (Field field : config.getClass().getDeclaredFields()) {
                 final int modifiers = field.getModifiers();

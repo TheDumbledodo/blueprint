@@ -2,21 +2,15 @@ package io.github.dumbledodo.blueprint.chat;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Text {
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
-            .tags(TagResolver.builder()
-                    .resolver(StandardTags.defaults())
-                    .build())
-            .build();
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public static Component translate(String text) {
         if (text == null) {
@@ -29,11 +23,16 @@ public class Text {
         if (input == null || input.isEmpty()) {
             return "";
         }
-        return LegacyComponentSerializer.legacyAmpersand().serialize(translate(input));
+        return LEGACY_SERIALIZER.serialize(Text.translate(input));
     }
 
-    public static Component[] translate(String... text) {
-        return Arrays.stream(text).map(Text::translate).toArray(Component[]::new);
+    public static Component[] translate(String... inputs) {
+        final List<Component> list = new ArrayList<>();
+
+        for (String input : inputs) {
+            list.add(translate(input));
+        }
+        return list.toArray(new Component[0]);
     }
 
     public static List<Component> translate(List<String> list) {
@@ -48,8 +47,13 @@ public class Text {
         return MINI_MESSAGE.serialize(component);
     }
 
-    public static List<String> translateToMiniMessage(List<Component> component) {
-        return component.stream().map(Text::translateToMiniMessage).toList();
+    public static List<String> translateToMiniMessage(List<Component> components) {
+        final List<String> list = new ArrayList<>();
+
+        for (Component component : components) {
+            list.add(translateToMiniMessage(component));
+        }
+        return list;
     }
 
     public static String capitalize(String text) {

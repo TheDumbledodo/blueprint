@@ -6,13 +6,19 @@ import com.github.dumbledodo.blueprint.service.Services;
 import de.exlll.configlib.YamlConfigurationProperties;
 import io.github.dumbledodo.blueprint.config.BukkitConfigurationSerializable;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 public class Blueprint {
@@ -37,11 +43,17 @@ public class Blueprint {
         final BukkitConfigurationSerializable configurationSerializable = new BukkitConfigurationSerializable();
         final YamlConfigurationProperties properties = YamlConfigurationProperties
                 .newBuilder()
-                .addSerializer(ItemStack.class, configurationSerializable)
-                .addSerializer(Location.class, configurationSerializable)
                 .addSerializer(Vector.class, configurationSerializable)
                 .addSerializer(BlockVector.class, configurationSerializable)
+                .addSerializer(ItemStack.class, configurationSerializable)
+                .addSerializer(Color.class, configurationSerializable)
                 .addSerializer(PotionEffect.class, configurationSerializable)
+                .addSerializer(FireworkEffect.class, configurationSerializable)
+                .addSerializer(Pattern.class, configurationSerializable)
+                .addSerializer(Location.class, configurationSerializable)
+                .addSerializer(AttributeModifier.class, configurationSerializable)
+                .addSerializer(BoundingBox.class, configurationSerializable)
+                .addSerializer(SpawnRule.class, configurationSerializable)
                 .build();
 
         BlueprintConfiguration.builder()
