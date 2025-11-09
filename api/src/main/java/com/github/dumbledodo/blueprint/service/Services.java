@@ -1,6 +1,6 @@
 package com.github.dumbledodo.blueprint.service;
 
-import com.github.dumbledodo.blueprint.annotation.Component;
+import com.github.dumbledodo.blueprint.annotation.BlueprintComponent;
 import com.github.dumbledodo.blueprint.loader.BlueprintLoader;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ public final class Services {
     public static <T> T loadIfPresent(Class<T> clazz) {
         final T instance = getService(clazz);
 
-        if (instance != null || !clazz.isAnnotationPresent(Component.class)) {
+        if (instance != null || !clazz.isAnnotationPresent(BlueprintComponent.class)) {
             return instance;
         }
 

@@ -1,6 +1,6 @@
 package com.github.dumbledodo.blueprint.loader;
 
-import com.github.dumbledodo.blueprint.annotation.Component;
+import com.github.dumbledodo.blueprint.annotation.BlueprintComponent;
 import com.github.dumbledodo.blueprint.lifecycle.ComponentRegistry;
 import com.github.dumbledodo.blueprint.service.Services;
 import io.github.classgraph.ClassGraph;
@@ -35,7 +35,7 @@ public class BlueprintLoader {
 
             return scanResult.getAllClasses().stream()
                     .map(ClassInfo::loadClass)
-                    .filter(clazz -> clazz.isAnnotationPresent(Component.class))
+                    .filter(clazz -> clazz.isAnnotationPresent(BlueprintComponent.class))
                     .collect(Collectors.toList());
         }
     }
@@ -61,7 +61,7 @@ public class BlueprintLoader {
             if (serviceInstance != null) {
                 paramList.add(serviceInstance);
 
-            } else if (paramType.isAnnotationPresent(Component.class)) {
+            } else if (paramType.isAnnotationPresent(BlueprintComponent.class)) {
                 final Object paramInstance = createComponentInstance((Class<T>) paramType);
 
                 if (paramInstance == null) {
