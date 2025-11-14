@@ -1,6 +1,7 @@
 package io.github.dumbledodo.blueprint;
 
 import co.aikar.commands.PaperCommandManager;
+import com.github.dumbledodo.blueprint.BlueprintModule;
 import com.github.dumbledodo.blueprint.lifecycle.ComponentRegistry;
 import com.github.dumbledodo.blueprint.service.Services;
 import de.exlll.configlib.YamlConfigurationProperties;
@@ -25,7 +26,10 @@ public class Blueprint {
 
     public static void register(Plugin plugin, Object... objects) {
         Services.register(plugin);
+
         Services.register(Plugin.class, plugin);
+        Services.register(BlueprintModule.class, plugin);
+
         Services.register(objects);
 
         Services.register(new PaperCommandManager(plugin));

@@ -1,9 +1,9 @@
 [versions]
+lombok = "edge-SNAPSHOT"
 shadow = "8.3.9"
 jetbrains-annotations = "23.0.0"
-gson = "2.8.9"
 
 [libraries]
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 shadow = { group = "com.gradleup.shadow", name = "shadow-gradle-plugin", version.ref = "shadow" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }

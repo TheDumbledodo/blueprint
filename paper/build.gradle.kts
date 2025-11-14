@@ -1,14 +1,7 @@
 plugins {
     java
-    blueprint.`shadow-conventions`
+    blueprint.`common-conventions`
     blueprint.`publish-conventions`
-}
-
-repositories {
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.aikar.co/content/groups/aikar/")
-    maven("https://projectlombok.org/edge-releases")
 }
 
 dependencies {
@@ -18,7 +11,4 @@ dependencies {
 
     compileOnly(libs.paper)
     implementation(libs.acf.paper)
-
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
 }

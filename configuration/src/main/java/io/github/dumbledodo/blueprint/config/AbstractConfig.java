@@ -44,18 +44,18 @@ public abstract class AbstractConfig {
         }
     }
 
-    public void reload() {
+    public <T extends AbstractConfig> void reload() {
         try {
-            final Class<? extends AbstractConfig> clazz = getClass();
+            final Class<T> clazz = (Class<T>) getClass();
 
             final BlueprintConfiguration configuration = Services.getService(BlueprintConfiguration.class);
 
             final YamlConfigurationProperties properties = configuration.getProperties();
             final Path configFile = getConfigFile(configuration);
 
-            final AbstractConfig config = YamlConfigurations.update(configFile, clazz, properties);
+            final T config = YamlConfigurations.update(configFile, clazz, properties);
 
-            for (Field field : config.getClass().getDeclaredFields()) {
+            for (Field field : clazz.getDeclaredFields()) {
                 final int modifiers = field.getModifiers();
 
                 if (Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers)) {

@@ -3,40 +3,21 @@ package com.github.dumbledodo.blueprint.loader;
 import com.github.dumbledodo.blueprint.annotation.BlueprintComponent;
 import com.github.dumbledodo.blueprint.lifecycle.ComponentRegistry;
 import com.github.dumbledodo.blueprint.service.Services;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ScanResult;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BlueprintLoader {
 
     public static void loadComponents(Class<?> main) {
-        for (Class<?> clazz : findComponentClasses(main)) {
+        for (Class<?> clazz : BlueprintScanner.scan(main, clazz -> clazz.isAnnotationPresent(BlueprintComponent.class))) {
             try {
                 createComponentInstance(clazz);
 
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
-    }
-
-    public static List<Class<?>> findComponentClasses(Class<?> main) {
-        final String basePackage = main.getPackage().getName();
-
-        try (ScanResult scanResult = new ClassGraph()
-                .enableClassInfo()
-                .acceptPackages(basePackage)
-                .scan()) {
-
-            return scanResult.getAllClasses().stream()
-                    .map(ClassInfo::loadClass)
-                    .filter(clazz -> clazz.isAnnotationPresent(BlueprintComponent.class))
-                    .collect(Collectors.toList());
         }
     }
 

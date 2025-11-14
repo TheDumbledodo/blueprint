@@ -1,11 +1,7 @@
 plugins {
     java
-    blueprint.`shadow-conventions`
+    blueprint.`common-conventions`
     blueprint.`publish-conventions`
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {

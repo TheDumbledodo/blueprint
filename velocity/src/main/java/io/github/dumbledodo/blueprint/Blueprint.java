@@ -1,6 +1,7 @@
 package io.github.dumbledodo.blueprint;
 
 import co.aikar.commands.VelocityCommandManager;
+import com.github.dumbledodo.blueprint.BlueprintModule;
 import com.github.dumbledodo.blueprint.lifecycle.ComponentRegistry;
 import com.github.dumbledodo.blueprint.service.Services;
 import com.velocitypowered.api.event.Subscribe;
@@ -14,6 +15,7 @@ public class Blueprint {
 
     public static void register(Object plugin, ProxyServer server, Path dataDirectory, Logger logger) {
         Services.register(plugin);
+        Services.register(BlueprintModule.class, plugin);
 
         Services.register(ProxyServer.class, server);
         Services.register(Logger.class, logger);
