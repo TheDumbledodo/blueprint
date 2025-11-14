@@ -1,0 +1,56 @@
+name: Gradle Package
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Build with Gradle
+        run: chmod +x gradlew && ./gradlew build
+
+      - name: Upload build artifacts api
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-build
+          path: build/libs/blueprint-api-*.jar
+
+      - name: Upload build artifacts configuration
+        uses: actions/upload-artifact@v4
+        with:
+          name: configuration-build
+          path: build/libs/blueprint-configuration-*.jar
+
+      - name: Upload build artifacts helper
+        uses: actions/upload-artifact@v4
+        with:
+          name: helper-build
+          path: build/libs/blueprint-helper-*.jar
+
+      - name: Upload build artifacts paper
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-build
+          path: build/libs/blueprint-paper-*.jar
+
+      - name: Upload build artifacts velocity
+        uses: actions/upload-artifact@v4
+        with:
+          name: velocity-build
+          path: build/libs/blueprint-velocity-*.jar
