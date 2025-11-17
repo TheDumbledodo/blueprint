@@ -14,7 +14,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -182,6 +184,13 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder effect(PotionType potionType) {
+        if (meta instanceof PotionMeta potionMeta) {
+            potionMeta.setBasePotionType(potionType);
+        }
+        return this;
+    }
+
     public ItemBuilder removePotionEffect(PotionEffectType potionEffectType) {
         if (meta instanceof PotionMeta potionMeta) {
 
@@ -264,11 +273,24 @@ public class ItemBuilder {
 
     public ItemBuilder contents(ItemStack... items) {
         if (meta instanceof BlockStateMeta stateMeta && stateMeta.getBlockState() instanceof ShulkerBox shulker) {
-            shulker.getInventory().setContents(items);
+            shulker.getInventory().addItem(items);
 
             stateMeta.setBlockState(shulker);
         }
         return this;
+    }
+
+    @SafeVarargs
+    public final ItemBuilder contents(List<ItemStack>... lists) {
+        final List<ItemStack> merged = new ArrayList<>();
+
+        for (List<ItemStack> list : lists) {
+            if (list == null || list.isEmpty()) {
+                continue;
+            }
+            merged.addAll(list);
+        }
+        return contents(merged.toArray(new ItemStack[0]));
     }
 
     public ItemBuilder contents(List<ItemStack> items) {
