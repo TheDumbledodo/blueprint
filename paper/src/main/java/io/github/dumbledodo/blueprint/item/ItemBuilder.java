@@ -2,16 +2,14 @@ package io.github.dumbledodo.blueprint.item;
 
 import io.github.dumbledodo.blueprint.chat.Text;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -125,6 +123,16 @@ public class ItemBuilder {
 
     public ItemBuilder editItem(Consumer<ItemStack> consumer) {
         consumer.accept(item);
+        return this;
+    }
+
+    public <T, Z> ItemBuilder data(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
+        meta.getPersistentDataContainer().set(key, type, value);
+        return this;
+    }
+
+    public ItemBuilder removeData(NamespacedKey key) {
+        meta.getPersistentDataContainer().remove(key);
         return this;
     }
 
