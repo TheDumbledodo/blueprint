@@ -22,6 +22,10 @@ public final class Services {
         return (T) REGISTERED_SERVICES.get(clazz);
     }
 
+    public static <T> boolean isPresent(Class<T> clazz) {
+        return REGISTERED_SERVICES.containsKey(clazz);
+    }
+
     public static <T> T loadIfPresent(Class<T> clazz) {
         final T instance = getService(clazz);
 

@@ -9,6 +9,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -77,12 +80,12 @@ public class ItemBuilder {
         return lore(Arrays.asList(lines));
     }
 
-    public ItemBuilder lore(List<String> miniLines) {
-        if (miniLines == null || miniLines.isEmpty()) {
-            meta.lore(null);
+    public ItemBuilder lore(List<String> lines) {
+        if (lines == null || lines.isEmpty()) {
+            clearLore();
             return this;
         }
-        meta.lore(miniLines.stream().map(Text::translate).toList());
+        meta.lore(lines.stream().map(Text::translate).toList());
         return this;
     }
 
@@ -275,6 +278,20 @@ public class ItemBuilder {
     public ItemBuilder chargedProjectiles(ItemStack... projectiles) {
         if (meta instanceof CrossbowMeta crossbowMeta) {
             crossbowMeta.setChargedProjectiles(Arrays.asList(projectiles));
+        }
+        return this;
+    }
+
+    public ItemBuilder trim(TrimMaterial material, TrimPattern pattern) {
+        if (meta instanceof ArmorMeta armorMeta) {
+            armorMeta.setTrim(new ArmorTrim(material, pattern));
+        }
+        return this;
+    }
+
+    public ItemBuilder clearTrim() {
+        if (meta instanceof ArmorMeta armorMeta) {
+            armorMeta.setTrim(null);
         }
         return this;
     }

@@ -5,9 +5,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":api"))
-    implementation(project(":helper"))
-    implementation(project(":configuration"))
+    implementation(project(":api", "shadow"))
+    implementation(project(":helper", "shadow"))
+    implementation(project(":configuration", "shadow"))
+    implementation(project(":menu", "shadow"))
 
     compileOnly(libs.velocity)
     implementation(libs.acf.velocity)

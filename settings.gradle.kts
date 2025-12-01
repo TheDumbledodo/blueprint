@@ -7,4 +7,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "blueprint"
-include("api", "paper", "velocity", "helper", "configuration")
+include("api", "paper", "velocity", "helper", "configuration", "menu")

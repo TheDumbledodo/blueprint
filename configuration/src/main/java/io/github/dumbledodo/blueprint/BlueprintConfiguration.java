@@ -20,7 +20,10 @@ public class BlueprintConfiguration {
     private Path configDirectory = Paths.get(".");
 
     @Default
-    private YamlConfigurationProperties properties = YamlConfigurationProperties.newBuilder().build();
+    private YamlConfigurationProperties properties = YamlConfigurationProperties.newBuilder()
+            .inputNulls(true)
+            .outputNulls(true)
+            .build();
 
     public void register(Object main) {
         Services.register(BlueprintConfiguration.class, this);

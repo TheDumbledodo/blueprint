@@ -5,6 +5,7 @@ velocity = "3.4.0-SNAPSHOT"
 acf= "0.5.1-SNAPSHOT"
 configlib= "4.6.3"
 classgraph = "4.8.179"
+packetevents = "2.10.1"
 
 [libraries]
 adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
@@ -19,6 +20,9 @@ acf-velocity = { group = "co.aikar", name = "acf-velocity", version.ref = "acf" 
 
 configlib-yaml = { group = "de.exlll", name = "configlib-yaml", version.ref = "configlib" }
 classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
+
+packetevents = { group = "com.github.retrooper", name = "packetevents-api", version.ref = "packetevents" }
+packetevents-spigot = { group = "com.github.retrooper", name = "packetevents-spigot", version.ref = "packetevents" }
 
 [bundles]
 adventure = ["adventure-api", "adventure-text-minimessage"]
