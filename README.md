@@ -1,4 +1,7 @@
-# Blueprint
+# 🔷 Blueprint
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/TheDumbledodo/blueprint/gradle-publish.yml)](https://github.com/TheDumbledodo/blueprint/actions)
+[![Version](https://img.shields.io/github/v/release/TheDumbledodo/blueprint)](https://github.com/TheDumbledodo/blueprint/releases)
 
 Blueprint is a small Java framework for component loading and service access. It is mainly built for Paper and Velocity plugins, but the `blueprint-api` module can be used in any Java project that wants a simple singleton-style service registry through `Services`.
 
