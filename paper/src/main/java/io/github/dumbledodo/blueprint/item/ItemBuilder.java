@@ -21,21 +21,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ItemBuilder {
 
-    private final ItemStack item;
-    private final ItemMeta meta;
+    private ItemStack item;
+    private ItemMeta meta;
 
     public ItemBuilder(Material material, int amount) {
-        this.item = new ItemStack(material, amount);
-        this.meta = item.getItemMeta();
+        this(new ItemStack(material, amount));
     }
 
     public ItemBuilder(ItemStack item) {
-        this.item = item;
+        this.item = Objects.requireNonNull(item, "item").clone();
         this.meta = item.getItemMeta();
     }
 
@@ -52,7 +52,8 @@ public class ItemBuilder {
     }
 
     public ItemBuilder type(Material material) {
-        this.item.setType(material);
+        this.item.setType(Objects.requireNonNull(material, "material"));
+        this.meta = item.getItemMeta();
         return this;
     }
 
@@ -80,12 +81,52 @@ public class ItemBuilder {
         return lore(Arrays.asList(lines));
     }
 
+    public ItemBuilder lore(Component... lines) {
+        if (lines == null || lines.length == 0) {
+            clearLore();
+            return this;
+        }
+        meta.lore(Arrays.asList(lines));
+        return this;
+    }
+
     public ItemBuilder lore(List<String> lines) {
         if (lines == null || lines.isEmpty()) {
             clearLore();
             return this;
         }
         meta.lore(lines.stream().map(Text::translate).toList());
+        return this;
+    }
+
+    public ItemBuilder appendLore(String... lines) {
+        if (lines == null || lines.length == 0) {
+            return this;
+        }
+
+        final List<Component> lore = currentLore();
+
+        for (String line : lines) {
+            lore.add(Text.translate(line));
+        }
+        meta.lore(lore);
+        return this;
+    }
+
+    public ItemBuilder appendLore(Component... lines) {
+        if (lines == null || lines.length == 0) {
+            return this;
+        }
+
+        final List<Component> lore = currentLore();
+
+        for (Component line : lines) {
+            if (line == null) {
+                continue;
+            }
+            lore.add(line);
+        }
+        meta.lore(lore);
         return this;
     }
 
@@ -120,12 +161,17 @@ public class ItemBuilder {
     }
 
     public ItemBuilder editMeta(Consumer<ItemMeta> consumer) {
-        consumer.accept(meta);
+        Objects.requireNonNull(consumer, "consumer").accept(meta);
         return this;
     }
 
     public ItemBuilder editItem(Consumer<ItemStack> consumer) {
-        consumer.accept(item);
+        final ItemStack edited = build();
+
+        Objects.requireNonNull(consumer, "consumer").accept(edited);
+
+        this.item = edited;
+        this.meta = edited.getItemMeta();
         return this;
     }
 
@@ -164,12 +210,30 @@ public class ItemBuilder {
     }
 
     public ItemBuilder clearFlags() {
-        meta.getItemFlags().forEach(item::removeItemFlags);
+        meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
         return this;
     }
 
     public ItemBuilder modelData(int customModelData) {
+        return modelData(Integer.valueOf(customModelData));
+    }
+
+    public ItemBuilder modelData(Integer customModelData) {
         meta.setCustomModelData(customModelData);
+        return this;
+    }
+
+    public ItemBuilder clearModelData() {
+        return modelData(null);
+    }
+
+    public ItemBuilder glow(boolean glow) {
+        meta.setEnchantmentGlintOverride(glow);
+        return this;
+    }
+
+    public ItemBuilder clearGlow() {
+        meta.setEnchantmentGlintOverride(null);
         return this;
     }
 
@@ -327,8 +391,17 @@ public class ItemBuilder {
 
     public ItemStack build() {
         final ItemStack result = item.clone();
-        result.setItemMeta(meta.clone());
+
+        if (meta != null) {
+            result.setItemMeta(meta.clone());
+        }
 
         return result;
+    }
+
+    private List<Component> currentLore() {
+        final List<Component> lore = meta.lore();
+
+        return lore == null ? new ArrayList<>() : new ArrayList<>(lore);
     }
 }

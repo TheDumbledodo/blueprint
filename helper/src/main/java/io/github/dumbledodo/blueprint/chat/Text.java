@@ -27,6 +27,10 @@ public class Text {
     }
 
     public static Component[] translate(String... inputs) {
+        if (inputs == null || inputs.length == 0) {
+            return new Component[0];
+        }
+
         final List<Component> list = new ArrayList<>();
 
         for (String input : inputs) {
@@ -36,6 +40,10 @@ public class Text {
     }
 
     public static List<Component> translate(List<String> list) {
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+
         final List<Component> toReturn = new ArrayList<>();
         for (String text : list) {
             toReturn.add(translate(text));
@@ -44,10 +52,17 @@ public class Text {
     }
 
     public static String translateToMiniMessage(Component component) {
+        if (component == null) {
+            return "";
+        }
         return MINI_MESSAGE.serialize(component);
     }
 
     public static List<String> translateToMiniMessage(List<Component> components) {
+        if (components == null || components.isEmpty()) {
+            return List.of();
+        }
+
         final List<String> list = new ArrayList<>();
 
         for (Component component : components) {
@@ -57,6 +72,10 @@ public class Text {
     }
 
     public static String capitalize(String text) {
+        if (text == null || text.isBlank()) {
+            return "";
+        }
+
         final StringBuilder builder = new StringBuilder();
         final String[] words = text.split(" +");
 

@@ -45,6 +45,10 @@ public class SmallCaps {
     }};
 
     public static String translate(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+
         final StringBuilder translated = new StringBuilder();
 
         for (char character : input.toLowerCase().toCharArray()) {

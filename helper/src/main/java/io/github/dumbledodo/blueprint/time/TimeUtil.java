@@ -3,6 +3,7 @@ package io.github.dumbledodo.blueprint.time;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Collection;
@@ -34,45 +35,89 @@ public class TimeUtil {
     }
 
     public static String toString(long duration) {
-        return toString(duration, true, List.of(TimeUnits.WEEKS));
+        return toString(duration, 1);
+    }
+
+    public static String toString(Duration duration) {
+        return toString(duration, 1);
     }
 
     public static String toString(long duration, boolean shortVersion) {
-        return toString(duration, shortVersion, List.of(TimeUnits.WEEKS));
+        return toString(duration, shortVersion ? 1 : Integer.MAX_VALUE);
+    }
+
+    public static String toString(Duration duration, boolean shortVersion) {
+        return toString(duration, shortVersion ? 1 : Integer.MAX_VALUE);
     }
 
     public static String toString(long duration, boolean shortVersion, Collection<TimeUnits> ignoreUnits) {
+        return toString(duration, shortVersion ? 1 : Integer.MAX_VALUE, ignoreUnits);
+    }
+
+    public static String toString(Duration duration, boolean shortVersion, Collection<TimeUnits> ignoreUnits) {
+        return toString(duration, shortVersion ? 1 : Integer.MAX_VALUE, ignoreUnits);
+    }
+
+    public static String toString(long duration, int maxUnits) {
+        return toString(duration, maxUnits, List.of());
+    }
+
+    public static String toString(Duration duration, int maxUnits) {
+        if (duration == null) {
+            return "0s";
+        }
+        return toString(duration.getSeconds(), maxUnits);
+    }
+
+    public static String toString(long duration, int maxUnits, Collection<TimeUnits> ignoreUnits) {
+        if (maxUnits <= 0) {
+            throw new IllegalArgumentException("maxUnits must be greater than 0");
+        }
+
         final StringBuilder result = new StringBuilder();
+        final Collection<TimeUnits> ignoredUnits = ignoreUnits == null ? List.of() : ignoreUnits;
+
+        long remaining = Math.abs(duration);
+        int units = 0;
 
         for (TimeUnits current : TimeUnits.values()) {
-            if (ignoreUnits.contains(current)) {
+            if (ignoredUnits.contains(current)) {
                 continue;
             }
 
-            final long temp = duration / current.getSeconds();
+            final long temp = remaining / current.getSeconds();
 
             if (temp <= 0) {
                 continue;
             }
 
-            if (!result.isEmpty())
+            if (!result.isEmpty()) {
                 result.append(" ");
+            }
 
             result.append(temp)
                     .append(" ")
                     .append(current.getName())
                     .append(temp != 1 ? "s" : "");
 
-            if (shortVersion) {
+            units++;
+            if (units >= maxUnits) {
                 break;
             }
-            duration -= temp * current.getSeconds();
+            remaining -= temp * current.getSeconds();
         }
 
         if ("".contentEquals(result)) {
             return "0s";
         }
-        return result.toString();
+        return duration < 0 ? "-" + result : result.toString();
+    }
+
+    public static String toString(Duration duration, int maxUnits, Collection<TimeUnits> ignoreUnits) {
+        if (duration == null) {
+            return "0s";
+        }
+        return toString(duration.getSeconds(), maxUnits, ignoreUnits);
     }
 
     @Getter
@@ -86,7 +131,7 @@ public class TimeUtil {
         MINUTES(TimeUnit.MINUTES.toSeconds(1), "minute"),
         SECONDS(TimeUnit.SECONDS.toSeconds(1), "second");
 
-        private final Long seconds;
+        private final long seconds;
         private final String name;
     }
 }
