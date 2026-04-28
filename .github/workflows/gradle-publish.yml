@@ -54,3 +54,9 @@ jobs:
         with:
           name: velocity-build
           path: build/libs/blueprint-velocity-*.jar
+
+      - name: Upload build artifacts menu
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-build
+          path: build/libs/blueprint-menu-*.jar
