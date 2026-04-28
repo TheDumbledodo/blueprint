@@ -11,7 +11,5 @@ dependencies {
     shadow(libs.bundles.adventure)
     shadow(libs.bundles.adventure.serializers)
 
-    compileOnly(libs.paper)
-
-    compileOnly(libs.packetevents.spigot)
+    compileOnly(libs.packetevents)
 }

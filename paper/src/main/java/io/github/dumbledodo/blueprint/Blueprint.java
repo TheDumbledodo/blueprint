@@ -4,11 +4,8 @@ import co.aikar.commands.PaperCommandManager;
 import com.github.dumbledodo.blueprint.BlueprintModule;
 import com.github.dumbledodo.blueprint.lifecycle.ComponentRegistry;
 import com.github.dumbledodo.blueprint.service.Services;
-import com.github.retrooper.packetevents.PacketEventsAPI;
 import de.exlll.configlib.YamlConfigurationProperties;
 import io.github.dumbledodo.blueprint.config.BukkitConfigurationSerializable;
-import io.github.dumbledodo.blueprint.listener.MenuListener;
-import io.github.dumbledodo.blueprint.service.MenuService;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -36,10 +33,6 @@ public class Blueprint {
         Services.register(objects);
 
         Services.register(new PaperCommandManager(plugin));
-
-        final MenuService menuService = new MenuService();
-        Services.register(menuService);
-        Services.register(new MenuListener(menuService, Services.getService(PacketEventsAPI.class)));
 
         final PluginManager pluginManager = Bukkit.getPluginManager();
 
