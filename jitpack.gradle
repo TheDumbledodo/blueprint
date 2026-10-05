@@ -1,0 +1,19 @@
+// Used only by jitpack.yml. Maven Central often answers JitPack's shared servers with
+// "429 Too Many Requests", so Google's mirror of Maven Central is tried first.
+def mirror = 'https://maven-central.storage-download.googleapis.com/maven2/'
+
+beforeSettings { settings ->
+    settings.pluginManagement.repositories {
+        maven { url = mirror }
+        gradlePluginPortal()
+    }
+}
+
+allprojects {
+    buildscript.repositories {
+        maven { url = mirror }
+    }
+    repositories {
+        maven { url = mirror }
+    }
+}
