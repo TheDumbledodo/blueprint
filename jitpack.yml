@@ -1,7 +1,8 @@
+# Gradle runs on JitPack's own Java (21); Java 25 is only installed for the compile toolchain.
 before_install:
-  - JAVA_25=$(sdk list java | grep -oE '25(\.[0-9]+)*-tem' | sort -V | tail -1) && sdk install java "$JAVA_25" && sdk use java "$JAVA_25"
+  - JAVA_RUN=$(sdk current java | awk '{print $NF}') && JAVA_25=$(sdk list java | grep -oE '25(\.[0-9]+)*-tem' | sort -V | tail -1) && sdk install java "$JAVA_25" && sdk use java "$JAVA_RUN" && export JAVA_25_HOME="$HOME/.sdkman/candidates/java/$JAVA_25"
   - GRADLE_VERSION=$(sed -n 's/.*gradle-\(.*\)-bin\.zip.*/\1/p' gradle/wrapper/gradle-wrapper.properties | tr -d '\r') && sdk install gradle "$GRADLE_VERSION" && sdk use gradle "$GRADLE_VERSION"
   - mkdir -p ~/.gradle/init.d && cp jitpack.gradle ~/.gradle/init.d/
 install:
-  - java -version && gradle --version
-  - gradle publishToMavenLocal -x test
+  - export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Djdk.net.URLClassPath.showIgnoredClassPathEntries=true"; df -h "$HOME" .; java -version; echo "Java 25 toolchain: $JAVA_25_HOME"
+  - gradle -Porg.gradle.java.installations.paths="$JAVA_25_HOME" publishToMavenLocal -x test || sh gradlew -Porg.gradle.java.installations.paths="$JAVA_25_HOME" publishToMavenLocal -x test
