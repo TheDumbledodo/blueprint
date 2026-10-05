@@ -60,6 +60,22 @@ The result is a main class that stays small and feature classes that declare the
 | `blueprint-packet-menu`        | PacketEvents menus for Paper and Velocity                                         |
 | `blueprint-bukkit-menu`        | Bukkit inventory menus                                                            |
 
+## Installation
+
+Blueprint is published on [JitPack](https://jitpack.io/#thedumbledodo/blueprint):
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.thedumbledodo.blueprint:blueprint-paper:v2.0.0")
+}
+```
+
+See the wiki page [Installation](https://github.com/TheDumbledodo/blueprint/wiki/Installation) for every module.
+
 ## Basic Usage
 
 For Paper plugins:

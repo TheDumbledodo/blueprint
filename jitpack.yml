@@ -1,0 +1,4 @@
+before_install:
+  - JAVA_25=$(sdk list java | grep -oE '25(\.[0-9]+)*-tem' | sort -V | tail -1) && sdk install java "$JAVA_25" && sdk use java "$JAVA_25"
+install:
+  - ./gradlew publishToMavenLocal -x test
