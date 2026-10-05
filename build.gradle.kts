@@ -2,7 +2,7 @@ plugins {
     java
 }
 
-group = "com.github.dumbledodo"
+group = "com.github.thedumbledodo"
 description = rootProject.description
 version = "${rootProject.ext["fullVersion"]}"
 

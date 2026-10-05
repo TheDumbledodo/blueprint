@@ -1,0 +1,16 @@
+{
+  "title": "<gold><bold>Stats</bold></gold>",
+  "kills": 12,
+  "playtimeMillis": 9000000000,
+  "accuracy": 0.75,
+  "ratio": 1.5,
+  "visible": true,
+  "nothing": null,
+  "lines": [
+    "<gray>Kills: <kills>",
+    "<gray>Deaths: <deaths>"
+  ],
+  "topPlayers": {
+    "steve": 40
+  }
+}

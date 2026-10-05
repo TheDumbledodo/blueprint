@@ -18,7 +18,7 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'temurin'
           cache: 'gradle'
 
@@ -60,3 +60,40 @@ jobs:
         with:
           name: menu-build
           path: build/libs/blueprint-menu-*.jar
+
+      - name: Upload build artifacts command
+        uses: actions/upload-artifact@v7
+        with:
+          name: command-build
+          path: build/libs/blueprint-command-*.jar
+
+      - name: Upload build artifacts yaml-configuration
+        uses: actions/upload-artifact@v7
+        with:
+          name: yaml-configuration-build
+          path: build/libs/blueprint-yaml-configuration-*.jar
+
+      - name: Upload build artifacts json-configuration
+        uses: actions/upload-artifact@v7
+        with:
+          name: json-configuration-build
+          path: build/libs/blueprint-json-configuration-*.jar
+
+      - name: Upload build artifacts packet-menu
+        uses: actions/upload-artifact@v7
+        with:
+          name: packet-menu-build
+          path: build/libs/blueprint-packet-menu-*.jar
+
+      - name: Upload build artifacts bukkit-menu
+        uses: actions/upload-artifact@v7
+        with:
+          name: bukkit-menu-build
+          path: build/libs/blueprint-bukkit-menu-*.jar
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'

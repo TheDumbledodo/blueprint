@@ -1,0 +1,27 @@
+# Messages sent by the plugin, MiniMessage is supported.
+
+# Sent after /minigame reload
+reloadedPlugin: <#43C9FA>Successfully reloaded plugin!
+noPermission: <#FF0000>You do not have permission.
+longLine: <gray>This is a very long line of MiniMessage text that goes on and on well past eighty characters <white>to check folding
+looksLikeBoolean: 'yes'
+looksLikeNumber: '123'
+nothing: null
+
+arena:
+  # Seconds before the game starts
+  #
+  # Counted down in chat
+  countdown: 10
+  worlds: [arena_1, arena 2]
+  ratio: 0.5
+  enabled: true
+
+arenas:
+- countdown: 10
+  worlds: [arena_1, arena 2]
+  ratio: 0.5
+  enabled: true
+
+scores:
+  steve: 3

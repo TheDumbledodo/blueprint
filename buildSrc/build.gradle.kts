@@ -6,8 +6,6 @@ plugins {
 repositories {
     gradlePluginPortal()
     mavenCentral()
-
-    maven("https://projectlombok.org/edge-releases")
 }
 
 dependencies {

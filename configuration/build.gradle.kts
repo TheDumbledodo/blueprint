@@ -6,5 +6,5 @@ plugins {
 
 dependencies {
     shadow(project(":api", "shadow"))
-    implementation(libs.configlib.yaml)
+    shadow(project(":helper", "shadow"))
 }

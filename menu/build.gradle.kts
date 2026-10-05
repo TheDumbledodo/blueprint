@@ -5,11 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":api", "shadow"))
-    implementation(project(":helper", "shadow"))
-
-    shadow(libs.bundles.adventure)
-    shadow(libs.bundles.adventure.serializers)
-
-    compileOnly(libs.packetevents)
+    shadow(project(":api", "shadow"))
+    shadow(project(":helper", "shadow"))
 }

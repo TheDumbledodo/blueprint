@@ -7,4 +7,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "blueprint"
-include("api", "paper", "velocity", "helper", "configuration", "menu")
+
+include("api", "helper", "configuration", "command", "menu", "paper", "velocity")
+include("configuration:yaml-configuration", "configuration:json-configuration")
+include("menu:packet-menu", "menu:bukkit-menu")

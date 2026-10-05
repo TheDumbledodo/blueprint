@@ -1,11 +1,17 @@
 [versions]
-adventure = "4.25.0"
-paper = "1.21.3-R0.1-SNAPSHOT"
+adventure = "4.17.0"
+paper = "26.2.build.+"
 velocity = "3.4.0-SNAPSHOT"
-acf= "0.5.1-SNAPSHOT"
-configlib= "4.6.3"
+brigadier = "1.2.9"
+snakeyaml = "2.3"
+gson = "2.10.1"
 classgraph = "4.8.179"
 packetevents = "2.10.1"
+junit = "5.13.4"
+mockito = "5.18.0"
+mockbukkit = "4.116.1"
+netty = "4.1.115.Final"
+adventure-packetevents = "4.25.0"
 
 [libraries]
 adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
@@ -15,15 +21,31 @@ adventure-text-serializer-legacy = { group = "net.kyori", name = "adventure-text
 paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 
-acf-paper = { group = "co.aikar", name = "acf-paper", version.ref = "acf" }
-acf-velocity = { group = "co.aikar", name = "acf-velocity", version.ref = "acf" }
-
-configlib-yaml = { group = "de.exlll", name = "configlib-yaml", version.ref = "configlib" }
+brigadier = { group = "com.mojang", name = "brigadier", version.ref = "brigadier" }
+snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
 
 packetevents = { group = "com.github.retrooper", name = "packetevents-api", version.ref = "packetevents" }
 packetevents-spigot = { group = "com.github.retrooper", name = "packetevents-spigot", version.ref = "packetevents" }
+packetevents-netty-common = { group = "com.github.retrooper", name = "packetevents-netty-common", version.ref = "packetevents" }
+netty-buffer = { group = "io.netty", name = "netty-buffer", version.ref = "netty" }
+
+packetevents-adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure-packetevents" }
+packetevents-adventure-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure-packetevents" }
+packetevents-adventure-gson = { group = "net.kyori", name = "adventure-text-serializer-gson", version.ref = "adventure-packetevents" }
+packetevents-adventure-json = { group = "net.kyori", name = "adventure-text-serializer-json", version.ref = "adventure-packetevents" }
+packetevents-adventure-legacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure-packetevents" }
+packetevents-adventure-plain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure-packetevents" }
+
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockbukkit = { group = "org.mockbukkit.mockbukkit", name = "mockbukkit-v26.2", version.ref = "mockbukkit" }
+
 
 [bundles]
 adventure = ["adventure-api", "adventure-text-minimessage"]
 adventure-serializers = ["adventure-text-serializer-legacy"]
+packetevents-test = ["packetevents", "packetevents-netty-common", "netty-buffer", "gson", "packetevents-adventure-api", "packetevents-adventure-minimessage", "packetevents-adventure-gson", "packetevents-adventure-json", "packetevents-adventure-legacy", "packetevents-adventure-plain"]

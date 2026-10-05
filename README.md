@@ -2,12 +2,9 @@
 
 Blueprint is a small Java framework for component loading and service access. It is mainly built for Paper and Velocity plugins, but the `blueprint-api` module can be used in any Java project that wants a simple singleton-style service registry through `Services`.
 
-For Minecraft plugins, Blueprint keeps bootstrap code thin by handling component scanning, constructor injection, service lookup, configuration loading, command setup, and common helper utilities.
+For Minecraft plugins, Blueprint keeps bootstrap code thin by handling component scanning, constructor injection, service lookup, configuration loading (YAML with comments, or JSON), Brigadier commands, menus, and common helper utilities.
 
-The project is inspired by [Supervisor](https://github.com/cjcameron92/supervisor), and builds on a few focused libraries:
-
-- [ConfigLib](https://github.com/Exlll/ConfigLib) for YAML configuration
-- [Aikar Commands](https://github.com/aikar/commands) for command registration
+The project is inspired by [Supervisor](https://github.com/cjcameron92/supervisor).
 
 ## Why Blueprint
 
@@ -44,11 +41,16 @@ The result is a main class that stays small and feature classes that declare the
 | Module | Purpose |
 | --- | --- |
 | `blueprint-api` | Components, lifecycle, scanning, and the `Services` registry for any Java project |
-| `blueprint-configuration` | ConfigLib integration |
-| `blueprint-helper` | Text, time, random, data, and other helpers |
+| `blueprint-helper` | Text, messages, time, random, data, and other helpers |
+| `blueprint-configuration` | Config classes, mapping, and serializers |
+| `blueprint-yaml-configuration` | YAML files with comments |
+| `blueprint-json-configuration` | JSON files |
+| `blueprint-command` | Annotation and builder commands on Brigadier |
 | `blueprint-paper` | Paper bootstrap, commands, listeners, and Bukkit serializers |
 | `blueprint-velocity` | Velocity bootstrap, commands, and event listeners |
-| `blueprint-menu` | PacketEvents menu utilities |
+| `blueprint-menu` | Shared menu model: layouts, pagination, cooldowns |
+| `blueprint-packet-menu` | PacketEvents menus for Paper and Velocity |
+| `blueprint-bukkit-menu` | Bukkit inventory menus |
 
 ## Basic Usage
 
@@ -84,3 +86,15 @@ Services.register(UserService.class, new UserService());
 
 UserService users = Services.loadIfPresent(UserService.class);
 ```
+
+## Development
+
+```bash
+./gradlew build                 # compile, run every test, build the jars into build/libs
+./gradlew :command:test         # one module
+./gradlew publishToMavenLocal   # use it from other projects
+```
+
+Test reports are in `<module>/build/reports/tests/test/index.html` and coverage in `<module>/build/reports/jacoco/test/html/index.html`.
+
+The plan behind 0.2 is in [docs/ROADMAP.md](docs/ROADMAP.md). Upgrading a plugin from 0.1 is covered in the wiki page [Migrating To 0.2](https://github.com/TheDumbledodo/blueprint/wiki/Migrating-To-0.2).

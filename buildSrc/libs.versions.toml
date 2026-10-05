@@ -1,5 +1,5 @@
 [versions]
-lombok = "edge-SNAPSHOT"
+lombok = "1.18.48"
 shadow = "8.3.9"
 jetbrains-annotations = "23.0.0"
 
