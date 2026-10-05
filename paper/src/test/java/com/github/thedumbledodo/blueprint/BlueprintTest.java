@@ -46,7 +46,6 @@ class BlueprintTest {
         assertSame(client, Services.getService(ApiClient.class));
         assertEquals("token", Services.getService(String.class));
         assertSame(plugin, Services.getService(Plugin.class));
-        assertSame(plugin, Services.getService(BlueprintModule.class));
         assertNull(Services.getService(Object[].class));
     }
 

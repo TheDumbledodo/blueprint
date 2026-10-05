@@ -304,7 +304,7 @@ public final class MenuService {
     private void clearCursor(User user) {
         final ClientVersion version = user.getClientVersion();
 
-        if (version != null && version.isNewerThanOrEquals(ClientVersion.V_1_21_2)) {
+        if (version.isNewerThanOrEquals(ClientVersion.V_1_21_2)) {
             sender.send(user, new WrapperPlayServerSetCursorItem(ItemStack.EMPTY));
             return;
         }

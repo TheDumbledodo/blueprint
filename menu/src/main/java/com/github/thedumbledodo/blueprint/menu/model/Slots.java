@@ -1,5 +1,7 @@
 package com.github.thedumbledodo.blueprint.menu.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 public final class Slots implements Iterable<Integer> {
@@ -53,7 +55,7 @@ public final class Slots implements Iterable<Integer> {
     }
 
     @Override
-    public Iterator<Integer> iterator() {
+    public @NotNull Iterator<Integer> iterator() {
         return slots.iterator();
     }
 

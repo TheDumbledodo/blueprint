@@ -4,15 +4,16 @@ import com.github.thedumbledodo.blueprint.config.serializer.Serializer;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class KeyedSerializer<T extends Keyed> implements Serializer<T, Object> {
 
-    private final Supplier<Registry<T>> registry;
+    private final Supplier<Registry<@NotNull T>> registry;
 
-    public KeyedSerializer(Supplier<Registry<T>> registry) {
+    public KeyedSerializer(Supplier<Registry<@NotNull T>> registry) {
         this.registry = Objects.requireNonNull(registry, "registry");
     }
 

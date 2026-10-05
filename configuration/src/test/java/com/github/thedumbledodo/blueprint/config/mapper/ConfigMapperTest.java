@@ -278,8 +278,8 @@ class ConfigMapperTest {
     void inheritedFieldsComeFirst() {
         final List<String> keys = new ArrayList<>(mapper.serialize(new ChildConfig()).getKeys());
 
-        assertEquals("reloadedPlugin", keys.get(0));
-        assertEquals("childOnly", keys.get(keys.size() - 1));
+        assertEquals("reloadedPlugin", keys.getFirst());
+        assertEquals("childOnly", keys.getLast());
     }
 
     @Test

@@ -86,7 +86,7 @@ class VelocityCommandManagerTest {
 
         final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<>();
 
-        dispatcher.getRoot().addChild(manager.getCommands().get(0).literal());
+        dispatcher.getRoot().addChild(manager.getCommands().getFirst().literal());
         dispatcher.execute("send lobby", player);
 
         assertEquals(List.of("Steve -> lobby"), calls);
@@ -105,7 +105,7 @@ class VelocityCommandManagerTest {
 
         final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<>();
 
-        dispatcher.getRoot().addChild(manager.getCommands().get(0).literal());
+        dispatcher.getRoot().addChild(manager.getCommands().getFirst().literal());
         dispatcher.execute("hub", console);
 
         verify(console).sendMessage(any(Component.class));

@@ -1,6 +1,5 @@
 package com.github.thedumbledodo.blueprint.menu.pagination;
 
-import com.github.thedumbledodo.blueprint.menu.TestClick;
 import com.github.thedumbledodo.blueprint.menu.TestMenu;
 import com.github.thedumbledodo.blueprint.menu.layout.MenuLayout;
 import com.github.thedumbledodo.blueprint.menu.model.Slots;

@@ -37,7 +37,7 @@ class YamlFormatTest {
 
     @Test
     void outputMatchesTheGoldenFile() throws IOException {
-        assertEquals(golden("messages.yml"), format.write(mapper.serialize(new MessagesConfig())));
+        assertEquals(golden(), format.write(mapper.serialize(new MessagesConfig())));
     }
 
     @Test
@@ -132,9 +132,9 @@ class YamlFormatTest {
         assertTrue(written.contains("# Sent after /minigame reload\nreloadedPlugin: <yellow>Done"));
     }
 
-    private String golden(String name) throws IOException {
-        try (InputStream stream = getClass().getClassLoader().getResourceAsStream(name)) {
-            assertNotNull(stream, "missing golden file " + name);
+    private String golden() throws IOException {
+        try (InputStream stream = getClass().getClassLoader().getResourceAsStream("messages.yml")) {
+            assertNotNull(stream, "missing golden file " + "messages.yml");
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8).replace("\r\n", "\n");
         }
     }
