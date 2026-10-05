@@ -1,4 +1,6 @@
 before_install:
   - JAVA_25=$(sdk list java | grep -oE '25(\.[0-9]+)*-tem' | sort -V | tail -1) && sdk install java "$JAVA_25" && sdk use java "$JAVA_25"
+  - GRADLE_VERSION=$(sed -n 's/.*gradle-\(.*\)-bin\.zip.*/\1/p' gradle/wrapper/gradle-wrapper.properties | tr -d '\r') && sdk install gradle "$GRADLE_VERSION" && sdk use gradle "$GRADLE_VERSION"
 install:
-  - ./gradlew publishToMavenLocal -x test
+  - java -version && gradle --version
+  - gradle publishToMavenLocal -x test
