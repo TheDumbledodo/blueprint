@@ -1,7 +1,3 @@
-plugins {
-    java
-}
-
 group = "com.github.thedumbledodo.blueprint"
 description = rootProject.description
 version = "${rootProject.ext["fullVersion"]}"
