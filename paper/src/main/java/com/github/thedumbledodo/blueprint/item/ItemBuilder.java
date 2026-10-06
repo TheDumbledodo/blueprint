@@ -1,5 +1,7 @@
 package com.github.thedumbledodo.blueprint.item;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import com.github.thedumbledodo.blueprint.chat.Text;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -19,20 +21,25 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class ItemBuilder {
+public class ItemBuilder implements Supplier<ItemStack> {
 
     private ItemStack item;
     private ItemMeta meta;
 
     private String name;
     private List<Object> lore;
+
+    private final List<TagResolver> placeholders = new ArrayList<>();
 
     public ItemBuilder(Material material, int amount) {
         this(new ItemStack(material, amount));
@@ -78,7 +85,7 @@ public class ItemBuilder {
 
     public ItemBuilder name(Component component) {
         this.name = null;
-        meta.displayName(component);
+        meta.itemName(component);
         return this;
     }
 
@@ -141,8 +148,17 @@ public class ItemBuilder {
         if (name != null) {
             this.name = name.replace(literal, escaped);
 
-        } else if (meta.hasDisplayName() && meta.displayName() != null) {
-            meta.displayName(replaceText(meta.displayName(), literal, replacement));
+        } else {
+            final Component itemName = meta.hasItemName() ? meta.itemName() : null;
+            final Component customName = meta.customName();
+
+            if (itemName != null) {
+                meta.itemName(replaceText(itemName, literal, replacement));
+            }
+
+            if (customName != null) {
+                meta.customName(replaceText(customName, literal, replacement));
+            }
         }
 
         final List<Object> current = managedLore();
@@ -156,6 +172,18 @@ public class ItemBuilder {
             }
             current.set(i, replaceText((Component) line, literal, replacement));
         }
+        return this;
+    }
+
+    public ItemBuilder placeholders(TagResolver... resolvers) {
+        if (resolvers != null) {
+            placeholders.addAll(Arrays.asList(resolvers));
+        }
+        return this;
+    }
+
+    public ItemBuilder clearPlaceholders() {
+        placeholders.clear();
         return this;
     }
 
@@ -208,6 +236,21 @@ public class ItemBuilder {
 
     public ItemBuilder flags(ItemFlag... itemFlag) {
         meta.addItemFlags(itemFlag);
+        return this;
+    }
+
+    public ItemBuilder hideEnchantments(boolean hide) {
+        if (hide) {
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+        } else {
+            meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
+        return this;
+    }
+
+    public ItemBuilder hideTooltip(boolean hide) {
+        meta.setHideTooltip(hide);
         return this;
     }
 
@@ -299,6 +342,10 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder color(int rgb) {
+        return color(Color.fromRGB(rgb));
+    }
+
     public ItemBuilder potionColor(Color color) {
         if (meta instanceof PotionMeta potionMeta) {
             potionMeta.setColor(color);
@@ -323,6 +370,20 @@ public class ItemBuilder {
     public ItemBuilder skullOwner(String playerName) {
         if (meta instanceof SkullMeta skullMeta) {
             skullMeta.setOwner(playerName);
+        }
+        return this;
+    }
+
+    public ItemBuilder skullOwner(UUID uuid) {
+        return skullOwner(Bukkit.getOfflinePlayer(uuid));
+    }
+
+    public ItemBuilder headTexture(String texture) {
+        if (meta instanceof SkullMeta skullMeta) {
+            final PlayerProfile profile = Bukkit.createProfile(UUID.nameUUIDFromBytes(texture.getBytes(StandardCharsets.UTF_8)));
+
+            profile.setProperty(new ProfileProperty("textures", texture));
+            skullMeta.setPlayerProfile(profile);
         }
         return this;
     }
@@ -391,11 +452,17 @@ public class ItemBuilder {
         return contents(items.toArray(new ItemStack[0]));
     }
 
+    @Override
+    public ItemStack get() {
+        return build();
+    }
+
     public ItemStack build() {
         return build(new TagResolver[0]);
     }
 
-    public ItemStack build(TagResolver... resolvers) {
+    public ItemStack build(TagResolver... given) {
+        final TagResolver[] resolvers = merge(given);
         final ItemStack result = item.clone();
 
         if (meta == null) {
@@ -405,7 +472,7 @@ public class ItemBuilder {
         final ItemMeta copy = meta.clone();
 
         if (name != null) {
-            copy.displayName(Text.translate(name, resolvers));
+            copy.itemName(Text.translate(name, resolvers));
         }
 
         if (lore != null) {
@@ -427,6 +494,19 @@ public class ItemBuilder {
             lines.add(Text.translate((String) line, resolvers));
         }
         return lines;
+    }
+
+    private TagResolver[] merge(TagResolver... resolvers) {
+        if (placeholders.isEmpty()) {
+            return resolvers == null ? new TagResolver[0] : resolvers;
+        }
+
+        final List<TagResolver> all = new ArrayList<>(placeholders);
+
+        if (resolvers != null) {
+            all.addAll(Arrays.asList(resolvers));
+        }
+        return all.toArray(new TagResolver[0]);
     }
 
     private List<Object> managedLore() {

@@ -60,8 +60,6 @@ class BukkitMenuListenerTest {
         }
     }
 
-    // MockBukkit leaves a closed view with a null top inventory, which a real server never does.
-    // Disabling the plugin looks at every player's open view, so give them a real one first.
     private void showPlayerInventory() {
         player.openInventory(player.getInventory());
     }
@@ -79,7 +77,7 @@ class BukkitMenuListenerTest {
         final AtomicInteger clicks = new AtomicInteger();
 
         menu.setItem(2, new ItemStack(Material.DIAMOND));
-        menu.onClick(2, click -> clicks.incrementAndGet());
+        menu.onClick(2, clicks::incrementAndGet);
         menu.open(player);
 
         final InventoryClickEvent event = simulation.simulateInventoryClick(player.getOpenInventory(), ClickType.LEFT, 2);
@@ -95,7 +93,7 @@ class BukkitMenuListenerTest {
 
         menu.setItem(4, new ItemStack(Material.EMERALD));
         menu.onClick(4, click -> {
-            types.add(click.buttonType());
+            types.add(click.type());
 
             assertSame(player, click.player());
             assertEquals(Material.EMERALD, click.item().getType());

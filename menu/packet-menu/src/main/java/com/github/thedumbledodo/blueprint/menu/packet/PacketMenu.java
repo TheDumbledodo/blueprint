@@ -63,7 +63,7 @@ public class PacketMenu extends AbstractMenu<User, ItemStack, PacketExecuteCompo
     }
 
     @Override
-    public void update() {
+    protected void render() {
         final MenuService service = Services.getService(MenuService.class);
 
         if (service == null) {
@@ -119,7 +119,7 @@ public class PacketMenu extends AbstractMenu<User, ItemStack, PacketExecuteCompo
             playerItems.put(index, item);
         }
 
-        markChanged(getSize() + index);
+        render(getSize() + index);
     }
 
     public void clearPlayerItems() {

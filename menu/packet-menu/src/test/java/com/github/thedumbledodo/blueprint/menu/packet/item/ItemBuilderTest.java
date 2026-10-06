@@ -87,6 +87,87 @@ class ItemBuilderTest {
     }
 
     @Test
+    void placeholdersAreUsedWhenBuilding() {
+        final ItemStack item = ItemBuilder.of(ItemTypes.PAPER)
+                .name("<name>")
+                .lore("<gray><price> coins")
+                .placeholders(Placeholder.unparsed("name", "Ticket"), Placeholder.unparsed("price", "5"))
+                .build();
+
+        assertEquals("Ticket", Text.translateToLegacyString(item.getComponent(ComponentTypes.ITEM_NAME).orElseThrow()));
+        assertEquals(List.of("§75 coins"), lore(item));
+    }
+
+    @Test
+    void buildPlaceholdersWinOverStoredOnes() {
+        final ItemBuilder builder = ItemBuilder.of(ItemTypes.PAPER)
+                .name("<name>")
+                .placeholders(Placeholder.unparsed("name", "stored"));
+
+        assertEquals("given", Text.translateToLegacyString(builder.build(Placeholder.unparsed("name", "given"))
+                .getComponent(ComponentTypes.ITEM_NAME).orElseThrow()));
+        assertEquals("stored", Text.translateToLegacyString(builder.get().getComponent(ComponentTypes.ITEM_NAME).orElseThrow()));
+    }
+
+    @Test
+    void glintIsOnlySentWhenSet() {
+        assertTrue(ItemBuilder.of(ItemTypes.DIAMOND).build().getComponent(ComponentTypes.ENCHANTMENT_GLINT_OVERRIDE).isEmpty());
+        assertEquals(true, ItemBuilder.of(ItemTypes.DIAMOND).glint(true).build().getComponent(ComponentTypes.ENCHANTMENT_GLINT_OVERRIDE).orElseThrow());
+        assertTrue(ItemBuilder.of(ItemTypes.DIAMOND).glint(true).clearGlint().build().getComponent(ComponentTypes.ENCHANTMENT_GLINT_OVERRIDE).isEmpty());
+    }
+
+    @Test
+    void replaceChangesPlainTextOnly() {
+        final ItemStack item = ItemBuilder.of(ItemTypes.PAPER)
+                .name("<yellow>{player}")
+                .lore("<gray>Owner: {player}")
+                .replace("{player}", "<red>Steve")
+                .build();
+
+        assertEquals("§e<red>Steve", Text.translateToLegacyString(item.getComponent(ComponentTypes.ITEM_NAME).orElseThrow()));
+        assertEquals(List.of("§7Owner: <red>Steve"), lore(item));
+    }
+
+    @Test
+    void headCanUseAnOwnerOrATexture() {
+        final ItemStack owner = ItemBuilder.of(ItemTypes.PLAYER_HEAD).skullOwner("Notch").build();
+        final ItemStack texture = ItemBuilder.of(ItemTypes.PLAYER_HEAD).headTexture("abc").build();
+
+        assertEquals("Notch", owner.getComponent(ComponentTypes.PROFILE).orElseThrow().getName());
+        assertEquals("abc", texture.getComponent(ComponentTypes.PROFILE).orElseThrow().getProperties().getFirst().getValue());
+    }
+
+    @Test
+    void colorTooltipAndExtraComponents() {
+        final ItemStack item = ItemBuilder.of(ItemTypes.LEATHER_CHESTPLATE)
+                .color(0x43C9FA)
+                .hideTooltip(true)
+                .component(ComponentTypes.MAX_STACK_SIZE, 16)
+                .build();
+
+        assertEquals(0x43C9FA, item.getComponent(ComponentTypes.DYED_COLOR).orElseThrow().getRgb());
+        assertTrue(item.getComponent(ComponentTypes.TOOLTIP_DISPLAY).orElseThrow().isHideTooltip());
+        assertEquals(16, item.getComponent(ComponentTypes.MAX_STACK_SIZE).orElseThrow());
+    }
+
+    @Test
+    void clearRemovesWhatWasSet() {
+        final ItemStack item = ItemBuilder.of(ItemTypes.DIAMOND_CHESTPLATE)
+                .enchantment(com.github.retrooper.packetevents.protocol.item.enchantment.type.EnchantmentTypes.UNBREAKING, 1)
+                .model(3)
+                .color(1)
+                .clearEnchantments()
+                .clearModel()
+                .clearColor()
+                .clearTrim()
+                .build();
+
+        assertTrue(item.getComponent(ComponentTypes.ENCHANTMENTS).orElseThrow().isEmpty());
+        assertTrue(item.getComponent(ComponentTypes.CUSTOM_MODEL_DATA_LISTS).isEmpty());
+        assertTrue(item.getComponent(ComponentTypes.DYED_COLOR).isEmpty());
+    }
+
+    @Test
     void headWithoutTextureHasNoProfile() {
         final ItemStack head = ItemBuilder.of(ItemTypes.PLAYER_HEAD).build();
 

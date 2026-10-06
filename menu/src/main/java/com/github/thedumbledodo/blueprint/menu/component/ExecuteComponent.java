@@ -26,7 +26,7 @@ public abstract class ExecuteComponent {
         return uuid;
     }
 
-    public ButtonType buttonType() {
+    public ButtonType type() {
         return buttonType;
     }
 

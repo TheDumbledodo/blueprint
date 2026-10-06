@@ -221,7 +221,7 @@ class MenuServiceTest {
         executor.runAll();
 
         assertEquals(1, clicks.size());
-        assertEquals(ButtonType.RIGHT, clicks.getFirst().buttonType());
+        assertEquals(ButtonType.RIGHT, clicks.getFirst().type());
         assertEquals(7, clicks.getFirst().item().getAmount());
         assertSame(steve, clicks.getFirst().user());
         assertSame(menu, clicks.getFirst().menu());
@@ -231,7 +231,7 @@ class MenuServiceTest {
     void clicksInThePlayerInventoryAreaDoNotRunActions() {
         final PacketMenu menu = new PacketMenu(1, Component.empty());
 
-        menu.onAnyClick(click -> fail("click outside the menu reached the menu"));
+        menu.onClick(click -> fail("click outside the menu reached the menu"));
         menu.open(steve);
         executor.runAll();
 

@@ -4,10 +4,12 @@ import com.github.thedumbledodo.blueprint.menu.component.ClickCooldowns;
 import com.github.thedumbledodo.blueprint.menu.component.ExecuteComponent;
 import com.github.thedumbledodo.blueprint.menu.layout.MenuLayout;
 import com.github.thedumbledodo.blueprint.menu.pagination.Pagination;
+import com.github.thedumbledodo.blueprint.menu.pagination.PaginationBuilder;
 import com.github.thedumbledodo.blueprint.menu.scheduler.MenuScheduler;
 import com.github.thedumbledodo.blueprint.menu.scheduler.MenuTask;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.time.Duration;
 import java.util.*;
@@ -51,9 +53,6 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
 
     private MenuTask refreshTask;
 
-    private final Set<Integer> changedSlots = new LinkedHashSet<>();
-    private int batchDepth;
-    private boolean fullUpdate;
 
     protected AbstractMenu(MenuType type, Component title) {
         this.type = Objects.requireNonNull(type, "type");
@@ -69,19 +68,13 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
 
     public abstract void close(V viewer);
 
-    public abstract void update();
+    protected abstract void render();
 
     protected abstract void render(int slot);
 
     protected abstract void updateTitle();
 
     protected abstract MenuScheduler getScheduler();
-
-    protected void render(Collection<Integer> slots) {
-        for (int slot : slots) {
-            render(slot);
-        }
-    }
 
     protected void refreshItems() {
         if (refreshAction != null) {
@@ -122,36 +115,46 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         } else {
             items.put(slot, item);
         }
-        markChanged(slot);
+        render(slot);
     }
 
     public void setItem(Slots slots, I item) {
-        setItems(() -> {
-            for (int slot : slots) {
-                setItem(slot, item);
-            }
-        });
+        for (int slot : slots) {
+            setItem(slot, item);
+        }
     }
 
     public void setItem(char symbol, I item) {
         setItem(getSlots(symbol), item);
     }
 
+    public void setItem(int slot, Supplier<? extends I> item) {
+        setItem(slot, Objects.requireNonNull(item, "item").get());
+    }
+
+    public void setItem(Slots slots, Supplier<? extends I> item) {
+        setItem(slots, Objects.requireNonNull(item, "item").get());
+    }
+
+    public void setItem(char symbol, Supplier<? extends I> item) {
+        setItem(getSlots(symbol), item);
+    }
+
     public void removeItem(int slot) {
-        setItem(slot, null);
+        setItem(slot, (I) null);
     }
 
     public void removeItem(Slots slots) {
-        setItem(slots, null);
+        setItem(slots, (I) null);
     }
 
     public void onClick(int slot, Consumer<C> action) {
-        setAction(slot, action, action);
+        putClick(slot, action, action);
     }
 
     public void onClick(Slots slots, Consumer<C> action) {
         for (int slot : slots) {
-            setAction(slot, action, action);
+            putClick(slot, action, action);
         }
     }
 
@@ -159,8 +162,20 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         onClick(getSlots(symbol), action);
     }
 
+    public void onClick(int slot, Runnable action) {
+        onClick(slot, ignoreClick(action));
+    }
+
+    public void onClick(Slots slots, Runnable action) {
+        onClick(slots, ignoreClick(action));
+    }
+
+    public void onClick(char symbol, Runnable action) {
+        onClick(getSlots(symbol), ignoreClick(action));
+    }
+
     public void removeClick(int slot) {
-        setAction(slot, null, null);
+        putClick(slot, null, null);
     }
 
     public void removeClick(Slots slots) {
@@ -169,8 +184,12 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         }
     }
 
-    public void onAnyClick(Consumer<C> action) {
+    public void onClick(Consumer<C> action) {
         this.anyClickAction = action;
+    }
+
+    public void onClick(Runnable action) {
+        onClick(ignoreClick(action));
     }
 
     public void onOpen(GuiAction action) {
@@ -192,30 +211,24 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
     public void clear() {
         actions.clear();
 
-        setItems(() -> {
-            for (int slot = 0; slot < getSize(); slot++) {
-                setItem(slot, null);
-            }
-        });
+        for (int slot = 0; slot < getSize(); slot++) {
+            setItem(slot, (I) null);
+        }
     }
 
     public void fill(I item) {
-        setItems(() -> {
-            for (int slot = 0; slot < getSize(); slot++) {
-                setItem(slot, item);
-            }
-        });
+        for (int slot = 0; slot < getSize(); slot++) {
+            setItem(slot, item);
+        }
     }
 
     public void fillEmpty(I item) {
-        setItems(() -> {
-            for (int slot = 0; slot < getSize(); slot++) {
-                if (items.containsKey(slot)) {
-                    continue;
-                }
-                setItem(slot, item);
+        for (int slot = 0; slot < getSize(); slot++) {
+            if (items.containsKey(slot)) {
+                continue;
             }
-        });
+            setItem(slot, item);
+        }
     }
 
     public void fillBorder(I item) {
@@ -224,17 +237,15 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         final int rows = getRows();
         final int columns = getColumns();
 
-        setItems(() -> {
-            for (int slot = 0; slot < getSize(); slot++) {
-                final int row = slot / columns;
-                final int column = slot % columns;
+        for (int slot = 0; slot < getSize(); slot++) {
+            final int row = slot / columns;
+            final int column = slot % columns;
 
-                if (row != 0 && row != rows - 1 && column != 0 && column != columns - 1) {
-                    continue;
-                }
-                setItem(slot, item);
+            if (row != 0 && row != rows - 1 && column != 0 && column != columns - 1) {
+                continue;
             }
-        });
+            setItem(slot, item);
+        }
     }
 
     public void fillRow(int row, I item) {
@@ -290,16 +301,28 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         return Slots.of(slots);
     }
 
-    public <T> Pagination<T> paginate(char symbol, List<T> entries, Function<T, I> icon, BiConsumer<C, T> click) {
-        return paginate(getSlots(symbol), () -> entries, icon, click);
+    public <T> PaginationBuilder<T, I, C> paginate(List<T> entries) {
+        Objects.requireNonNull(entries, "entries");
+        return paginate(() -> entries);
     }
 
-    public <T> Pagination<T> paginate(Slots slots, List<T> entries, Function<T, I> icon, BiConsumer<C, T> click) {
-        return paginate(slots, () -> entries, icon, click);
+    public <T> PaginationBuilder<T, I, C> paginate(Supplier<? extends List<T>> entries) {
+        return new PaginationBuilder<>(this, entries);
     }
 
-    public <T> Pagination<T> paginate(Slots slots, Supplier<List<T>> entries, Function<T, I> icon, BiConsumer<C, T> click) {
-        Objects.requireNonNull(icon, "icon");
+    @Internal
+    public <T> Pagination<T> createPagination(PaginationBuilder<T, I, C> builder) {
+        final Slots slots = builder.getSlots();
+        final Function<T, I> icon = builder.getIcon();
+        final BiConsumer<C, T> click = builder.getClick();
+
+        if (slots == null) {
+            throw new IllegalStateException("pagination needs slots(...)");
+        }
+
+        if (icon == null) {
+            throw new IllegalStateException("pagination needs icon(...)");
+        }
 
         for (int slot : slots) {
             checkSlot(slot);
@@ -309,44 +332,32 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
             }
         }
 
-        final Pagination<T> pagination = new Pagination<>(slots.toList(), entries,
+        final Supplier<? extends List<T>> entries = builder.getEntries();
+        final Pagination<T> pagination = new Pagination<>(slots.toList(), entries::get,
                 (slot, entry) -> {
                     setItem(slot, icon.apply(entry));
-                    setAction(slot, click == null ? null : event -> click.accept(event, entry), click);
+                    putClick(slot, click == null ? null : event -> click.accept(event, entry), click);
                 },
                 slot -> {
-                    setItem(slot, null);
-                    setAction(slot, null, null);
-                },
-                this::setItems);
+                    setItem(slot, (I) null);
+                    putClick(slot, null, null);
+                });
 
         paginatedSlots.addAll(slots.toList());
+        builder.getListeners().forEach(pagination::onPageChange);
+
+        final PaginationBuilder.PageButton<I> previous = builder.getPrevious();
+        final PaginationBuilder.PageButton<I> next = builder.getNext();
+
+        if (previous != null) {
+            setPageButton(pagination, previous.slot(), previous.item(), previous.emptyItem(), Pagination::hasPrevious, Pagination::previous);
+        }
+
+        if (next != null) {
+            setPageButton(pagination, next.slot(), next.item(), next.emptyItem(), Pagination::hasNext, Pagination::next);
+        }
         pagination.render();
         return pagination;
-    }
-
-    public void setPreviousPage(Pagination<?> pagination, char symbol, I item) {
-        setPreviousPage(pagination, getSlots(symbol).toList().getFirst(), item, null);
-    }
-
-    public void setPreviousPage(Pagination<?> pagination, int slot, I item) {
-        setPreviousPage(pagination, slot, item, null);
-    }
-
-    public void setPreviousPage(Pagination<?> pagination, int slot, I item, I emptyItem) {
-        setPageButton(pagination, slot, item, emptyItem, Pagination::hasPrevious, Pagination::previous);
-    }
-
-    public void setNextPage(Pagination<?> pagination, char symbol, I item) {
-        setNextPage(pagination, getSlots(symbol).toList().getFirst(), item, null);
-    }
-
-    public void setNextPage(Pagination<?> pagination, int slot, I item) {
-        setNextPage(pagination, slot, item, null);
-    }
-
-    public void setNextPage(Pagination<?> pagination, int slot, I item, I emptyItem) {
-        setPageButton(pagination, slot, item, emptyItem, Pagination::hasNext, Pagination::next);
     }
 
     private <T> void setPageButton(Pagination<T> pagination, int slot, I item, I emptyItem,
@@ -357,36 +368,20 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         final Consumer<Pagination<T>> updater = current -> {
             if (visible.test(current)) {
                 setItem(slot, item);
-                setAction(slot, action, action);
+                putClick(slot, action, action);
                 return;
             }
 
-            setAction(slot, null, null);
+            putClick(slot, null, null);
             setItem(slot, emptyItem);
         };
 
         pagination.onPageChange(updater);
-        setItems(() -> updater.accept(pagination));
+        updater.accept(pagination);
     }
 
-    public void setItems(Runnable changes) {
-        batchDepth++;
-
-        try {
-            changes.run();
-
-        } finally {
-            batchDepth--;
-
-            if (batchDepth == 0) {
-                flushChanges();
-            }
-        }
-    }
-
-    public void update(Runnable changes) {
-        fullUpdate = true;
-        setItems(changes);
+    public void update() {
+        render();
     }
 
     public void setTitle(Component title) {
@@ -473,25 +468,13 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         refresh();
     }
 
-    protected void markChanged(int slot) {
-        if (batchDepth > 0) {
-            changedSlots.add(slot);
-            return;
-        }
-        render(slot);
-    }
-
     protected void checkSlot(int slot) {
         if (slot < 0 || slot >= getSize()) {
             throw new IllegalArgumentException("slot must be between 0 and " + (getSize() - 1) + " but was " + slot);
         }
     }
 
-    protected boolean isBatching() {
-        return batchDepth > 0;
-    }
-
-    private void setAction(int slot, Consumer<C> action, Object key) {
+    private void putClick(int slot, Consumer<C> action, Object key) {
         checkSlot(slot);
 
         if (action == null) {
@@ -501,20 +484,9 @@ public abstract class AbstractMenu<V, I, C extends ExecuteComponent> {
         actions.put(slot, new SlotAction<>(action, key == null ? action : key));
     }
 
-    private void flushChanges() {
-        final List<Integer> slots = List.copyOf(changedSlots);
-
-        changedSlots.clear();
-
-        if (fullUpdate) {
-            fullUpdate = false;
-            update();
-            return;
-        }
-
-        if (!slots.isEmpty()) {
-            render(slots);
-        }
+    private Consumer<C> ignoreClick(Runnable action) {
+        Objects.requireNonNull(action, "action");
+        return click -> action.run();
     }
 
     private boolean hasRefreshCode() {

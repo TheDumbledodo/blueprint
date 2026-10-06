@@ -71,38 +71,13 @@ class AbstractMenuTest {
     }
 
     @Test
-    void setItemRendersOnlyThatSlot() {
+    void setItemRendersThatSlotRightAway() {
         final TestMenu menu = new TestMenu(1);
 
         menu.setItem(3, "item");
 
         assertEquals(List.of(3), menu.getRenderedSlots());
         assertEquals(0, menu.getUpdates());
-    }
-
-    @Test
-    void setItemsSendsOnlyTheChangedSlotsOnceAtTheEnd() {
-        final TestMenu menu = new TestMenu(2);
-
-        menu.setItems(() -> {
-            menu.setItem(0, "a");
-            menu.setItem(5, "b");
-            menu.setItem(0, "c");
-        });
-
-        assertEquals(List.of(List.of(0, 5)), menu.getRenderBatches());
-        assertEquals("c", menu.getItem(0).orElseThrow());
-    }
-
-    @Test
-    void setItemsWithoutChangesSendsNothing() {
-        final TestMenu menu = new TestMenu(1);
-
-        menu.setItems(() -> {
-        });
-
-        assertTrue(menu.getRenderBatches().isEmpty());
-        assertTrue(menu.getRenderedSlots().isEmpty());
     }
 
     @Test
@@ -159,7 +134,7 @@ class AbstractMenuTest {
         final TestMenu menu = new TestMenu(1);
         final List<String> calls = new ArrayList<>();
 
-        menu.onAnyClick(click -> calls.add("any " + click.slot()));
+        menu.onClick(click -> calls.add("any " + click.slot()));
         menu.onClick(2, click -> calls.add("slot"));
 
         menu.handleClick(TestClick.left(viewer, 2));
@@ -172,24 +147,63 @@ class AbstractMenuTest {
     void changesMadeInAClickAreSentRightAway() {
         final TestMenu menu = new TestMenu(1);
 
+        menu.onClick(click -> menu.setItem(3, "any"));
         menu.onClick(0, click -> {
             menu.setItem(1, "a");
             menu.setItem(2, "b");
         });
         menu.handleClick(TestClick.left(viewer, 0));
 
-        assertEquals(List.of(1, 2), menu.getRenderedSlots());
-        assertTrue(menu.getRenderBatches().isEmpty());
+        assertEquals(List.of(3, 1, 2), menu.getRenderedSlots());
     }
 
     @Test
-    void updateWithChangesSendsTheWholeWindowOnce() {
+    void actionsWithoutTheClick() {
+        final TestMenu menu = new TestMenu(1);
+        final List<String> calls = new ArrayList<>();
+
+        menu.onClick(() -> calls.add("any"));
+        menu.onClick(0, () -> calls.add("slot"));
+        menu.onClick(Slots.of(1, 2), () -> calls.add("slots"));
+        menu.handleClick(TestClick.left(viewer, 0));
+        menu.handleClick(TestClick.left(viewer, 2));
+
+        assertEquals(List.of("any", "slot", "any", "slots"), calls);
+    }
+
+    @Test
+    void setItemTakesABuilder() {
+        final TestMenu menu = new TestMenu(1);
+        final AtomicInteger builds = new AtomicInteger();
+
+        menu.setItem(0, () -> "built " + builds.incrementAndGet());
+        menu.setItem(Slots.of(1, 2), () -> "shared " + builds.incrementAndGet());
+
+        assertEquals("built 1", menu.getItem(0).orElseThrow());
+        assertEquals("shared 2", menu.getItem(1).orElseThrow());
+        assertEquals("shared 2", menu.getItem(2).orElseThrow());
+    }
+
+    @Test
+    void refreshChangesAreSentRightAway() {
+        final TestMenu menu = new TestMenu(1);
+
+        menu.onRefresh(current -> {
+            current.setItem(0, "a");
+            current.setItem(1, "b");
+        });
+        menu.refresh();
+
+        assertEquals(List.of(0, 1), menu.getRenderedSlots());
+    }
+
+    @Test
+    void updateSendsTheWholeWindow() {
         final TestMenu menu = new TestMenu(2);
 
-        menu.update(() -> {
-            menu.fillBorder("glass");
-            menu.setItem(4, "center");
-        });
+        menu.setItem(4, "center");
+        menu.resetCounters();
+        menu.update();
 
         assertEquals(1, menu.getUpdates());
         assertTrue(menu.getRenderedSlots().isEmpty());
@@ -280,12 +294,14 @@ class AbstractMenuTest {
                 "###<#>###"
         ));
 
-        final Pagination<String> pagination = menu.paginate('x', IntStream.range(0, 20)
-                .mapToObj(i -> "item" + i)
-                .toList(), entry -> entry, null);
-
-        menu.setPreviousPage(pagination, '<', "previous");
-        menu.setNextPage(pagination, '>', "next");
+        final Pagination<String> pagination = menu.paginate(IntStream.range(0, 20)
+                        .mapToObj(i -> "item" + i)
+                        .toList())
+                .setSlots('x')
+                .setIcon(entry -> entry)
+                .setPreviousPage('<', "previous")
+                .setNextPage('>', "next")
+                .build();
 
         assertTrue(menu.getItem(12).isEmpty());
         assertFalse(menu.hasClick(12));
@@ -308,11 +324,13 @@ class AbstractMenuTest {
     void paginatedEntriesGetTheirOwnClick() {
         final TestMenu menu = new TestMenu(2);
         final List<String> bought = new ArrayList<>();
-        final Pagination<String> pagination = menu.paginate(Slots.of(0, 1, 2), List.of("a", "b", "c", "d"),
-                entry -> "icon " + entry, (click, entry) -> bought.add(entry));
-
-        menu.setPreviousPage(pagination, 9, "previous", "none");
-        menu.setNextPage(pagination, 17, "next");
+        menu.paginate(List.of("a", "b", "c", "d"))
+                .setSlots(0, 1, 2)
+                .setIcon(entry -> "icon " + entry)
+                .onClick(entry -> bought.add(entry))
+                .setPreviousPage(9, "previous", "none")
+                .setNextPage(17, "next")
+                .build();
 
         assertEquals("icon a", menu.getItem(0).orElseThrow());
         assertEquals("none", menu.getItem(9).orElseThrow());
@@ -332,11 +350,8 @@ class AbstractMenuTest {
     @Test
     void severalPaginationsTurnIndependently() {
         final TestMenu menu = new TestMenu(2);
-        final Pagination<String> first = menu.paginate(Slots.range(0, 1), List.of("a", "b", "c"), entry -> entry, null);
-        final Pagination<String> second = menu.paginate(Slots.range(9, 10), List.of("x", "y", "z"), entry -> entry, null);
-
-        menu.setNextPage(first, 8, "next");
-        menu.setNextPage(second, 17, "next");
+        final Pagination<String> first = menu.paginate(List.of("a", "b", "c")).setSlots(Slots.range(0, 1)).setIcon(entry -> entry).setNextPage(8, "next").build();
+        final Pagination<String> second = menu.paginate(List.of("x", "y", "z")).setSlots(Slots.range(9, 10)).setIcon(entry -> entry).setNextPage(17, "next").build();
         menu.handleClick(TestClick.left(viewer, 17));
 
         assertEquals(1, first.getPage());
@@ -346,12 +361,39 @@ class AbstractMenuTest {
     }
 
     @Test
+    void pageChangeListenerRunsWhenBuiltAndOnEveryPage() {
+        final TestMenu menu = new TestMenu(2);
+        final List<Integer> pages = new ArrayList<>();
+        final Pagination<String> pagination = menu.paginate(List.of("a", "b", "c"))
+                .setSlots(0)
+                .setIcon(entry -> entry)
+                .onPageChange(current -> pages.add(current.getPage()))
+                .build();
+
+        pagination.next();
+
+        assertEquals(List.of(1, 2), pages);
+    }
+
+    @Test
+    void pageButtonsShowTheNewPage() {
+        final TestMenu menu = new TestMenu(2);
+
+        menu.paginate(List.of("a", "b", "c")).setSlots(0).setIcon(entry -> entry).setNextPage(8, "next").build();
+        menu.resetCounters();
+        menu.handleClick(TestClick.left(viewer, 8));
+
+        assertEquals(List.of(0, 8), menu.getRenderedSlots());
+        assertEquals("b", menu.getItem(0).orElseThrow());
+    }
+
+    @Test
     void paginationsCannotShareSlots() {
         final TestMenu menu = new TestMenu(2);
 
-        menu.paginate(Slots.range(0, 4), List.of("a"), entry -> entry, null);
+        menu.paginate(List.of("a")).setSlots(Slots.range(0, 4)).setIcon(entry -> entry).build();
 
-        assertThrows(IllegalArgumentException.class, () -> menu.paginate(Slots.range(4, 8), List.of("b"), entry -> entry, null));
+        assertThrows(IllegalArgumentException.class, () -> menu.paginate(List.of("b")).setSlots(Slots.range(4, 8)).setIcon(entry -> entry).build());
     }
 
     @Test
@@ -413,7 +455,7 @@ class AbstractMenuTest {
         menu.refresh();
 
         assertTrue(menu.getScheduledTasks().isEmpty());
-        assertTrue(menu.getRenderBatches().isEmpty());
+        assertTrue(menu.getRenderedSlots().isEmpty());
     }
 
     @Test
@@ -425,7 +467,7 @@ class AbstractMenuTest {
         menu.refresh();
 
         assertEquals(1, runs.get());
-        assertTrue(menu.getRenderBatches().isEmpty());
+        assertTrue(menu.getRenderedSlots().isEmpty());
     }
 
     @Test

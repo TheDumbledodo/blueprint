@@ -16,14 +16,13 @@ public final class Pagination<T> {
 
     private final BiConsumer<Integer, T> renderer;
     private final IntConsumer clearer;
-    private final Consumer<Runnable> batcher;
 
     private final List<Consumer<Pagination<T>>> listeners = new CopyOnWriteArrayList<>();
 
     private Supplier<List<T>> entries;
     @Getter private int page = 1;
 
-    public Pagination(List<Integer> slots, Supplier<List<T>> entries, BiConsumer<Integer, T> renderer, IntConsumer clearer, Consumer<Runnable> batcher) {
+    public Pagination(List<Integer> slots, Supplier<List<T>> entries, BiConsumer<Integer, T> renderer, IntConsumer clearer) {
         if (slots == null || slots.isEmpty()) {
             throw new IllegalArgumentException("pagination needs at least one slot");
         }
@@ -32,7 +31,6 @@ public final class Pagination<T> {
 
         this.renderer = Objects.requireNonNull(renderer, "renderer");
         this.clearer = Objects.requireNonNull(clearer, "clearer");
-        this.batcher = Objects.requireNonNull(batcher, "batcher");
 
         this.entries = Objects.requireNonNull(entries, "entries");
     }
@@ -106,20 +104,18 @@ public final class Pagination<T> {
 
         final List<T> pageEntries = getPageEntries();
 
-        batcher.accept(() -> {
-            for (int i = 0; i < slots.size(); i++) {
-                final int slot = slots.get(i);
+        for (int i = 0; i < slots.size(); i++) {
+            final int slot = slots.get(i);
 
-                if (i < pageEntries.size()) {
-                    renderer.accept(slot, pageEntries.get(i));
-                    continue;
-                }
-                clearer.accept(slot);
+            if (i < pageEntries.size()) {
+                renderer.accept(slot, pageEntries.get(i));
+                continue;
             }
+            clearer.accept(slot);
+        }
 
-            for (Consumer<Pagination<T>> listener : listeners) {
-                listener.accept(this);
-            }
-        });
+        for (Consumer<Pagination<T>> listener : listeners) {
+            listener.accept(this);
+        }
     }
 }

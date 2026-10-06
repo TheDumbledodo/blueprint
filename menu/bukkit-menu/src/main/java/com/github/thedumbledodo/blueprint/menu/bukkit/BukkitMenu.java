@@ -63,7 +63,7 @@ public class BukkitMenu extends AbstractMenu<Player, ItemStack, BukkitExecuteCom
     }
 
     @Override
-    public void update() {
+    protected void render() {
         if (inventory == null) {
             return;
         }

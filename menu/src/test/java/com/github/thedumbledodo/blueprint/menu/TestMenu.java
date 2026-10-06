@@ -8,7 +8,6 @@ import net.kyori.adventure.text.Component;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +15,6 @@ import java.util.UUID;
 public class TestMenu extends AbstractMenu<UUID, String, TestClick> {
 
     private final List<Integer> renderedSlots = new ArrayList<>();
-    private final List<List<Integer>> renderBatches = new ArrayList<>();
     private final List<Runnable> scheduledTasks = new ArrayList<>();
 
     private int updates;
@@ -43,19 +41,13 @@ public class TestMenu extends AbstractMenu<UUID, String, TestClick> {
     }
 
     @Override
-    public void update() {
+    protected void render() {
         updates++;
     }
 
     @Override
     protected void render(int slot) {
         renderedSlots.add(slot);
-    }
-
-    @Override
-    protected void render(Collection<Integer> slots) {
-        renderBatches.add(List.copyOf(slots));
-        super.render(slots);
     }
 
     @Override
@@ -79,7 +71,6 @@ public class TestMenu extends AbstractMenu<UUID, String, TestClick> {
 
     public void resetCounters() {
         renderedSlots.clear();
-        renderBatches.clear();
         updates = 0;
     }
 

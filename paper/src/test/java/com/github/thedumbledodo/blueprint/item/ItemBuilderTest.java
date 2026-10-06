@@ -28,7 +28,9 @@ class ItemBuilderTest {
     }
 
     private static String name(ItemStack item) {
-        return Text.translateToLegacyString(item.getItemMeta().displayName());
+        final ItemMeta meta = item.getItemMeta();
+
+        return Text.translateToLegacyString(meta.hasItemName() ? meta.itemName() : meta.customName());
     }
 
     private static List<String> lore(ItemStack item) {
@@ -93,10 +95,17 @@ class ItemBuilderTest {
         final ItemStack base = new ItemStack(Material.PAPER);
         final ItemMeta meta = base.getItemMeta();
 
-        meta.displayName(Component.text("Hello {player}"));
+        meta.itemName(Component.text("Hello {player}"));
         base.setItemMeta(meta);
 
+        final ItemStack renamed = new ItemStack(Material.PAPER);
+        final ItemMeta renamedMeta = renamed.getItemMeta();
+
+        renamedMeta.customName(Component.text("Bye {player}"));
+        renamed.setItemMeta(renamedMeta);
+
         assertEquals("Hello Steve", name(ItemBuilder.from(base).replace("{player}", "Steve").build()));
+        assertEquals("Bye Steve", name(ItemBuilder.from(renamed).replace("{player}", "Steve").build()));
         assertEquals("Hi <red>x", name(ItemBuilder.from(Material.PAPER).name("Hi {p}").replace("{p}", "<red>x").build()));
     }
 

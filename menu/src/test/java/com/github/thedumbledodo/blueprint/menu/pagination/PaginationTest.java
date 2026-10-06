@@ -18,7 +18,10 @@ class PaginationTest {
     private final TestMenu menu = new TestMenu(1);
 
     private Pagination<String> paginate(List<String> entries) {
-        return menu.paginate(SLOTS, () -> entries, entry -> entry, null);
+        return menu.paginate(entries)
+                .setSlots(SLOTS)
+                .setIcon(entry -> entry)
+                .build();
     }
 
     private static List<String> entries(int count) {
@@ -93,7 +96,7 @@ class PaginationTest {
     @Test
     void supplierIsReadOnEveryRender() {
         final List<String> live = new ArrayList<>(entries(2));
-        final Pagination<String> pagination = menu.paginate(SLOTS, () -> live, entry -> entry, null);
+        final Pagination<String> pagination = menu.paginate(() -> live).setSlots(SLOTS).setIcon(entry -> entry).build();
 
         live.add("late");
         pagination.render();
@@ -102,13 +105,13 @@ class PaginationTest {
     }
 
     @Test
-    void turningAPageSendsItsSlotsInOneBatch() {
+    void turningAPageRendersItsSlots() {
         final Pagination<String> pagination = paginate(entries(10));
 
         menu.resetCounters();
         pagination.next();
 
-        assertEquals(List.of(List.of(0, 1, 2, 3)), menu.getRenderBatches());
+        assertEquals(List.of(0, 1, 2, 3), menu.getRenderedSlots());
     }
 
     @Test
@@ -131,7 +134,7 @@ class PaginationTest {
                 "#xxxxxxx#",
                 "###<#>###"));
 
-        final Pagination<String> pagination = menu.paginate('x', entries(9), entry -> entry, null);
+        final Pagination<String> pagination = menu.paginate(entries(9)).setSlots('x').setIcon(entry -> entry).build();
 
         assertEquals(7, pagination.getPageSize());
         assertEquals("item0", menu.getItem(1).orElseThrow());
@@ -140,6 +143,8 @@ class PaginationTest {
 
     @Test
     void paginationNeedsSlots() {
-        assertThrows(IllegalArgumentException.class, () -> menu.paginate(Slots.of(), List::<String>of, entry -> entry, null));
+        assertThrows(IllegalArgumentException.class, () -> menu.paginate(List.<String>of()).setSlots(Slots.of()).setIcon(entry -> entry).build());
+        assertThrows(IllegalStateException.class, () -> menu.paginate(List.of("a")).setIcon(entry -> entry).build());
+        assertThrows(IllegalStateException.class, () -> menu.paginate(List.of("a")).setSlots(SLOTS).build());
     }
 }

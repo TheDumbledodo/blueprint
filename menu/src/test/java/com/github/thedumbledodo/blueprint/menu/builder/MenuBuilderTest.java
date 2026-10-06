@@ -31,10 +31,10 @@ class MenuBuilderTest {
         final List<String> calls = new ArrayList<>();
 
         final TestMenu menu = builder()
-                .rows(2)
-                .title(Component.text("Shop of Steve"))
+                .setRows(2)
+                .setTitle(Component.text("Shop of Steve"))
                 .fillBorder("glass")
-                .item(10, "diamond")
+                .setItem(10, "diamond")
                 .onClick(Slots.of(10, 11), click -> calls.add("bought " + click.slot()))
                 .onClose(uuid -> calls.add("closed"))
                 .build();
@@ -43,7 +43,6 @@ class MenuBuilderTest {
         assertEquals(Component.text("Shop of Steve"), menu.getTitle());
         assertEquals("glass", menu.getItem(0).orElseThrow());
         assertEquals("diamond", menu.getItem(10).orElseThrow());
-        assertEquals(1, menu.getRenderBatches().size());
 
         menu.open(viewer);
         menu.handleClick(TestClick.left(viewer, 10));
@@ -55,7 +54,7 @@ class MenuBuilderTest {
 
     @Test
     void everyBuildCreatesANewMenu() {
-        final MenuBuilder<TestMenu, String, TestClick> builder = builder().item(0, "a");
+        final MenuBuilder<TestMenu, String, TestClick> builder = builder().setItem(0, "a");
 
         assertNotSame(builder.build(), builder.build());
     }
@@ -63,10 +62,10 @@ class MenuBuilderTest {
     @Test
     void layoutSymbolsCanBeUsed() {
         final TestMenu menu = builder()
-                .rows(1)
-                .layout("#   x   #")
-                .item('#', "glass")
-                .item('x', "center")
+                .setRows(1)
+                .setLayout("#   x   #")
+                .setItem('#', "glass")
+                .setItem('x', "center")
                 .build();
 
         assertEquals("glass", menu.getItem(8).orElseThrow());
@@ -76,7 +75,7 @@ class MenuBuilderTest {
     @Test
     void refreshCodeRunsWhenTheMenuOpens() {
         final TestMenu menu = builder()
-                .rows(1)
+                .setRows(1)
                 .onRefresh(current -> current.setItem(0, "fresh"))
                 .build();
 
