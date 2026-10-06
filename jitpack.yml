@@ -1,4 +1,4 @@
 before_install:
   - sdk install java 25.0.4-tem && sdk use java 25.0.4-tem
 install:
-  - sh gradlew publishToMavenLocal -x test
+  - sh gradlew --init-script jitpack.gradle publishToMavenLocal -x test
