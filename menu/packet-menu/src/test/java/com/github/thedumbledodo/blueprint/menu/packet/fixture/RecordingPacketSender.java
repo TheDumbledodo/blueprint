@@ -10,10 +10,23 @@ import java.util.List;
 public final class RecordingPacketSender implements PacketSender {
 
     private final List<Sent> sent = new ArrayList<>();
+    private final List<Sent> received = new ArrayList<>();
 
     @Override
     public void send(User user, PacketWrapper<?> packet) {
         sent.add(new Sent(user, packet));
+    }
+
+    @Override
+    public void receive(User user, PacketWrapper<?> packet) {
+        received.add(new Sent(user, packet));
+    }
+
+    public List<PacketWrapper<?>> received(User user) {
+        return received.stream()
+                .filter(entry -> entry.user() == user)
+                .<PacketWrapper<?>>map(Sent::packet)
+                .toList();
     }
 
     public List<PacketWrapper<?>> packets(User user) {
@@ -38,6 +51,7 @@ public final class RecordingPacketSender implements PacketSender {
 
     public void clear() {
         sent.clear();
+        received.clear();
     }
 
     private record Sent(User user, PacketWrapper<?> packet) {

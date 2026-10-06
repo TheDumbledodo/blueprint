@@ -9,8 +9,10 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCloseWindow;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPlayerInventory;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetSlot;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowItems;
+import com.github.thedumbledodo.blueprint.menu.packet.cache.PlayerInventoryCache;
 import com.github.thedumbledodo.blueprint.menu.packet.service.MenuService;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,32 +60,50 @@ public final class MenuListener implements PacketListener {
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
-        final PacketTypeCommon packetType = event.getPacketType();
+        if (!(event.getPacketType() instanceof PacketType.Play.Server packetType)) {
+            return;
+        }
+
         final User user = event.getUser();
 
-        if (packetType == PacketType.Play.Server.OPEN_WINDOW || packetType == PacketType.Play.Server.CLOSE_WINDOW) {
-            menuService.handleServerWindow(user);
-            return;
-        }
+        switch (packetType) {
+            case OPEN_WINDOW, CLOSE_WINDOW, DEATH_COMBAT_EVENT, RESPAWN, CONFIGURATION_START -> menuService.handleServerWindow(user);
 
-        if (!trackInventories) {
-            return;
-        }
+            case WINDOW_ITEMS -> {
+                final WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(event);
 
-        if (packetType == PacketType.Play.Server.WINDOW_ITEMS) {
-            final WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(event);
+                if (trackInventories) {
+                    menuService.getInventoryCache().setWindowContents(user.getUUID(), packet.getWindowId(), packet.getItems());
+                }
 
-            if (packet.getWindowId() == 0) {
-                menuService.getInventoryCache().setContents(user.getUUID(), packet.getItems());
+                if (packet.getWindowId() == 0 && menuService.hidesInventory(user)) {
+                    event.setCancelled(true);
+                }
             }
-            return;
-        }
 
-        if (packetType == PacketType.Play.Server.SET_SLOT) {
-            final WrapperPlayServerSetSlot packet = new WrapperPlayServerSetSlot(event);
+            case SET_SLOT -> {
+                final WrapperPlayServerSetSlot packet = new WrapperPlayServerSetSlot(event);
 
-            if (packet.getWindowId() == 0) {
-                menuService.getInventoryCache().setSlot(user.getUUID(), packet.getSlot(), packet.getItem());
+                if (trackInventories) {
+                    menuService.getInventoryCache().setWindowSlot(user.getUUID(), packet.getWindowId(), packet.getSlot(), packet.getItem());
+                }
+
+                if (packet.getWindowId() == 0 && menuService.hidesInventorySlot(user, packet.getSlot())) {
+                    event.setCancelled(true);
+                }
+            }
+
+            case SET_PLAYER_INVENTORY -> {
+                final WrapperPlayServerSetPlayerInventory packet = new WrapperPlayServerSetPlayerInventory(event);
+                final int slot = PlayerInventoryCache.toWindowSlot(packet.getSlot());
+
+                if (trackInventories) {
+                    menuService.getInventoryCache().setSlot(user.getUUID(), slot, packet.getStack());
+                }
+
+                if (menuService.hidesInventorySlot(user, slot)) {
+                    event.setCancelled(true);
+                }
             }
         }
     }

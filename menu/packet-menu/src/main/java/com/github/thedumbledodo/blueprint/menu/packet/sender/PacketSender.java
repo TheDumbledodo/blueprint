@@ -9,4 +9,8 @@ public interface PacketSender {
     PacketSender SILENT = User::sendPacketSilently;
 
     void send(User user, PacketWrapper<?> packet);
+
+    default void receive(User user, PacketWrapper<?> packet) {
+        user.receivePacketSilently(packet);
+    }
 }

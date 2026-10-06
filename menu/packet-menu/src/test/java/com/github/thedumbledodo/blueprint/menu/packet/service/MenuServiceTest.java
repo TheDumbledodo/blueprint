@@ -4,12 +4,15 @@ import com.github.retrooper.packetevents.protocol.item.ItemStack;
 import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.player.User;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow.WindowClickType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCloseWindow;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import com.github.thedumbledodo.blueprint.menu.model.ButtonType;
 import com.github.thedumbledodo.blueprint.menu.packet.PacketExecuteComponent;
 import com.github.thedumbledodo.blueprint.menu.packet.PacketMenu;
+import com.github.thedumbledodo.blueprint.menu.packet.cache.PlayerInventoryCache;
 import com.github.thedumbledodo.blueprint.menu.packet.fixture.FakePacketEventsAPI;
 import com.github.thedumbledodo.blueprint.menu.packet.fixture.QueueExecutor;
 import com.github.thedumbledodo.blueprint.menu.packet.fixture.RecordingPacketSender;
@@ -273,6 +276,132 @@ class MenuServiceTest {
 
         assertEquals(List.of("closed"), closes);
         assertFalse(service.handleClick(steve, click(1, 0, 0, WindowClickType.PICKUP)));
+    }
+
+    @Test
+    void openingClosesWhateverTheServerHasOpen() {
+        final PacketMenu menu = new PacketMenu(1, Component.empty());
+
+        menu.open(steve);
+
+        final List<PacketWrapper<?>> received = sender.received(steve);
+
+        assertEquals(1, received.size());
+        assertEquals(0, ((WrapperPlayClientCloseWindow) received.getFirst()).getWindowId());
+    }
+
+    @Test
+    void hiddenAreasBlockInventoryUpdates() {
+        final PacketMenu menu = new PacketMenu(1, Component.empty());
+
+        menu.open(steve);
+        sender.clear();
+
+        assertTrue(service.hidesInventorySlot(steve, 9));
+        assertTrue(service.hidesInventorySlot(steve, 44));
+        assertTrue(service.hidesInventory(steve));
+        assertTrue(sender.packets(steve).isEmpty());
+    }
+
+    @Test
+    void mirroredMenusOnlyBlockSlotsWithFakeItems() {
+        final PacketMenu menu = new PacketMenu(1, Component.empty());
+
+        menu.setMirrorPlayerInventory(true);
+        menu.setPlayerItem(27, item(5));
+        menu.open(steve);
+
+        assertTrue(service.hidesInventorySlot(steve, 36));
+        assertFalse(service.hidesInventorySlot(steve, 37));
+        assertTrue(service.hidesInventory(steve));
+
+        menu.clearPlayerItems();
+
+        assertFalse(service.hidesInventorySlot(steve, 36));
+        assertFalse(service.hidesInventory(steve));
+    }
+
+    @Test
+    void armorAndClosedMenusAreNotBlocked() {
+        final PacketMenu menu = new PacketMenu(1, Component.empty());
+
+        assertFalse(service.hidesInventorySlot(steve, 36));
+        assertFalse(service.hidesInventory(steve));
+
+        menu.open(steve);
+
+        assertFalse(service.hidesInventorySlot(steve, 5));
+        assertFalse(service.hidesInventorySlot(steve, 45));
+        assertFalse(service.hidesInventorySlot(steve, -1));
+    }
+
+    @Test
+    void serverWindowsUpdateThePlayerInventoryPart() {
+        final PlayerInventoryCache cache = service.getInventoryCache();
+        final List<ItemStack> window = new ArrayList<>();
+
+        for (int i = 0; i < 27 + 36; i++) {
+            window.add(i < 27 ? item(64) : ItemStack.EMPTY);
+        }
+        window.set(27, item(1));
+        window.set(27 + 35, item(2));
+
+        cache.setContents(steve.getUUID(), List.of());
+        cache.setWindowContents(steve.getUUID(), 5, window);
+
+        assertEquals(1, cache.getMenuSlot(steve.getUUID(), 0).getAmount());
+        assertEquals(2, cache.getMenuSlot(steve.getUUID(), 35).getAmount());
+
+        cache.setWindowSlot(steve.getUUID(), 5, 27 + 4, item(7));
+        cache.setWindowSlot(steve.getUUID(), 5, 3, item(9));
+        cache.setWindowSlot(steve.getUUID(), 6, 27 + 5, item(9));
+
+        assertEquals(7, cache.getMenuSlot(steve.getUUID(), 4).getAmount());
+        assertTrue(cache.getMenuSlot(steve.getUUID(), 5).isEmpty());
+        assertTrue(cache.getContents(steve.getUUID()).orElseThrow().stream().noneMatch(stack -> stack.getAmount() == 64));
+    }
+
+    @Test
+    void playerInventoryWindowStillWorks() {
+        final PlayerInventoryCache cache = service.getInventoryCache();
+
+        cache.setWindowContents(steve.getUUID(), 0, List.of(item(1)));
+        cache.setWindowSlot(steve.getUUID(), 0, 9, item(4));
+
+        assertEquals(1, cache.getContents(steve.getUUID()).orElseThrow().getFirst().getAmount());
+        assertEquals(4, cache.getMenuSlot(steve.getUUID(), 0).getAmount());
+    }
+
+    @Test
+    void playerInventoryIndexesMapToWindowSlots() {
+        assertEquals(36, PlayerInventoryCache.toWindowSlot(0));
+        assertEquals(44, PlayerInventoryCache.toWindowSlot(8));
+        assertEquals(9, PlayerInventoryCache.toWindowSlot(9));
+        assertEquals(35, PlayerInventoryCache.toWindowSlot(35));
+        assertEquals(8, PlayerInventoryCache.toWindowSlot(36));
+        assertEquals(5, PlayerInventoryCache.toWindowSlot(39));
+        assertEquals(45, PlayerInventoryCache.toWindowSlot(40));
+        assertEquals(-1, PlayerInventoryCache.toWindowSlot(41));
+    }
+
+    @Test
+    void deathOrRespawnClosesTheMenuWithoutPackets() {
+        final PacketMenu menu = new PacketMenu(1, Component.empty());
+        final List<String> closes = new ArrayList<>();
+
+        menu.onClose(uuid -> closes.add("closed"));
+        menu.open(steve);
+        executor.runAll();
+        sender.clear();
+
+        service.handleServerWindow(steve);
+        executor.runAll();
+
+        assertEquals(List.of("closed"), closes);
+        assertTrue(service.getMenu(steve).isEmpty());
+        assertFalse(menu.isOpen());
+        assertTrue(sender.packets(steve).isEmpty());
+        assertTrue(sender.received(steve).isEmpty());
     }
 
     @Test

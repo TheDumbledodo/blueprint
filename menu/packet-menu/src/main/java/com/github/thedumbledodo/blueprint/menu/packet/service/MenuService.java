@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow.WindowClickType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCloseWindow;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import com.github.thedumbledodo.blueprint.menu.model.ButtonType;
 import com.github.thedumbledodo.blueprint.menu.packet.PacketExecuteComponent;
@@ -57,6 +58,8 @@ public final class MenuService {
         if (previous != null) {
             executor.execute(() -> previous.menu().handleClose(uuid));
         }
+
+        sender.receive(user, new WrapperPlayClientCloseWindow(0));
 
         final OpenMenu open = new OpenMenu(menu, nextWindowId(uuid), user);
 
@@ -172,6 +175,25 @@ public final class MenuService {
         openMenus.remove(uuid, open);
         finishClose(open);
         return true;
+    }
+
+    public boolean hidesInventorySlot(User user, int slot) {
+        final OpenMenu open = openMenus.get(user.getUUID());
+
+        if (open == null || slot < PlayerInventoryCache.MAIN_INVENTORY_START
+                || slot >= PlayerInventoryCache.MAIN_INVENTORY_START + PLAYER_INVENTORY_SLOTS) {
+            return false;
+        }
+
+        final PacketMenu menu = open.menu();
+
+        return !menu.isMirrorPlayerInventory() || menu.getPlayerItem(slot - PlayerInventoryCache.MAIN_INVENTORY_START).isPresent();
+    }
+
+    public boolean hidesInventory(User user) {
+        final OpenMenu open = openMenus.get(user.getUUID());
+
+        return open != null && (!open.menu().isMirrorPlayerInventory() || open.menu().hasPlayerItems());
     }
 
     public void handleServerWindow(User user) {

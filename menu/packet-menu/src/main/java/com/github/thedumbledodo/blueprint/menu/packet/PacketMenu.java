@@ -107,6 +107,10 @@ public class PacketMenu extends AbstractMenu<User, ItemStack, PacketExecuteCompo
         return Optional.ofNullable(playerItems.get(index));
     }
 
+    public boolean hasPlayerItems() {
+        return !playerItems.isEmpty();
+    }
+
     public void setPlayerItem(int index, ItemStack item) {
         if (index < 0 || index >= MenuService.PLAYER_INVENTORY_SLOTS) {
             throw new IllegalArgumentException("player inventory index must be between 0 and 35 but was " + index);
