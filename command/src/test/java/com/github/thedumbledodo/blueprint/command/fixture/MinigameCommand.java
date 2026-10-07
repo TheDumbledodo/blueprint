@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@CommandAlias("minigame|mg")
+@Command("minigame|mg")
 @CommandPermission("minigame.use")
 @Description("Minigame commands")
 public final class MinigameCommand extends BaseCommand {
@@ -24,7 +24,7 @@ public final class MinigameCommand extends BaseCommand {
 
     @Subcommand("join|j")
     @CommandCompletion("@arenas")
-    public void join(TestPlayer player, String arena, @Optional @Range(min = 1, max = 4) Integer team) {
+    public void join(TestPlayer player, String arena, @OptionalArg @Range(min = 1, max = 4) Integer team) {
         calls.add("join " + arena + " " + team);
     }
 
@@ -40,7 +40,7 @@ public final class MinigameCommand extends BaseCommand {
     }
 
     @Subcommand("team list")
-    public void teamList(TestSender sender, @Optional int page) {
+    public void teamList(TestSender sender, @OptionalArg int page) {
         calls.add("team list " + page);
     }
 

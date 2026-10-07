@@ -10,8 +10,6 @@ import java.util.function.Function;
 
 public class CommandException extends RuntimeException {
 
-    private static final CommandMessages DEFAULT_MESSAGES = new CommandMessages();
-
     private final transient Function<CommandMessages, String> template;
     private final transient TagResolver[] resolvers;
 
@@ -32,6 +30,6 @@ public class CommandException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return template.apply(DEFAULT_MESSAGES);
+        return template.apply(CommandMessages.DEFAULT);
     }
 }

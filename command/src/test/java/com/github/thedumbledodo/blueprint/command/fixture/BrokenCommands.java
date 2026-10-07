@@ -12,15 +12,15 @@ public final class BrokenCommands {
         }
     }
 
-    @CommandAlias("broken")
+    @Command("broken")
     public static final class OptionalBeforeRequired extends BaseCommand {
 
         @Subcommand("run")
-        public void run(TestSender sender, @Optional String first, String second) {
+        public void run(TestSender sender, @OptionalArg String first, String second) {
         }
     }
 
-    @CommandAlias("broken")
+    @Command("broken")
     public static final class DuplicatePath extends BaseCommand {
 
         @Subcommand("run")
@@ -32,7 +32,7 @@ public final class BrokenCommands {
         }
     }
 
-    @CommandAlias("broken")
+    @Command("broken")
     public static final class UnknownCompletion extends BaseCommand {
 
         @Subcommand("run")
@@ -41,7 +41,7 @@ public final class BrokenCommands {
         }
     }
 
-    @CommandAlias("broken")
+    @Command("broken")
     public static final class UnknownRequirement extends BaseCommand {
 
         @Subcommand("run")
@@ -50,7 +50,7 @@ public final class BrokenCommands {
         }
     }
 
-    @CommandAlias("broken")
+    @Command("broken")
     public static final class JoinNumber extends BaseCommand {
 
         @Subcommand("run")
@@ -58,7 +58,7 @@ public final class BrokenCommands {
         }
     }
 
-    @CommandAlias("broken")
+    @Command("broken")
     public static final class UnknownParser extends BaseCommand {
 
         @Subcommand("run")

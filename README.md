@@ -71,7 +71,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.thedumbledodo.blueprint:blueprint-paper:2.0.1")
+    implementation("com.github.thedumbledodo.blueprint:blueprint-paper:2.1.1")
 }
 ```
 

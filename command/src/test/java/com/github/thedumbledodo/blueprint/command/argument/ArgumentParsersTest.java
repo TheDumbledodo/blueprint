@@ -35,7 +35,7 @@ class ArgumentParsersTest {
     @ValueSource(strings = {"not-a-uuid", "1234", "zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz"})
     void uuidRejectsGarbageWithTheInput(String input) {
         final CommandException exception = assertThrows(CommandException.class, () -> ArgumentParsers.uuid().parse(actor, input));
-        final String rendered = Text.translateToLegacyString(exception.render(new CommandMessages())).replaceAll("§.", "");
+        final String rendered = Text.translateToLegacyString(exception.render(CommandMessages.DEFAULT)).replaceAll("§.", "");
 
         assertEquals("Invalid value " + input + ".", rendered);
     }

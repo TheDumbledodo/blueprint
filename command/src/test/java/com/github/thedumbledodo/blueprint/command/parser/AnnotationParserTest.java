@@ -101,10 +101,10 @@ class AnnotationParserTest {
     }
 
     @Test
-    void missingCommandAliasFails() {
+    void missingCommandFails() {
         final IllegalStateException exception = assertThrows(IllegalStateException.class, () -> parser.parse(new BrokenCommands.NoAlias()));
 
-        assertTrue(exception.getMessage().contains("@CommandAlias"));
+        assertTrue(exception.getMessage().contains("@Command"));
     }
 
     @Test

@@ -38,7 +38,7 @@ public abstract class CommandManager<S> {
     private final AnnotationParser annotationParser = new AnnotationParser(this);
 
     @Getter @Setter
-    private CommandMessages messages = new CommandMessages();
+    private CommandMessages messages = CommandMessages.DEFAULT;
 
     @Getter @Setter
     private boolean hideUnpermitted = true;

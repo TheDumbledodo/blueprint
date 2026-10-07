@@ -34,13 +34,13 @@ public final class AnnotationParser {
 
     public CommandNode parse(BaseCommand command) {
         final Class<?> type = command.getClass();
-        final CommandAlias alias = type.getAnnotation(CommandAlias.class);
+        final Command annotation = type.getAnnotation(Command.class);
 
-        if (alias == null) {
-            throw new IllegalStateException(type.getName() + " extends BaseCommand but has no @CommandAlias");
+        if (annotation == null) {
+            throw new IllegalStateException(type.getName() + " extends BaseCommand but has no @Command");
         }
 
-        final List<String> names = splitAliases(alias.value());
+        final List<String> names = splitAliases(annotation.value());
         final CommandBuilder root = CommandBuilder.of(names.getFirst());
 
         root.aliases(names.subList(1, names.size()).toArray(new String[0]));
@@ -179,7 +179,7 @@ public final class AnnotationParser {
 
     private CommandArgument<?> createCommandArgument(Argument<?> argument, Parameter parameter, String completion) {
         final Default defaultValue = parameter.getAnnotation(Default.class);
-        final boolean optional = parameter.isAnnotationPresent(com.github.thedumbledodo.blueprint.command.annotation.Optional.class) || defaultValue != null;
+        final boolean optional = parameter.isAnnotationPresent(OptionalArg.class) || defaultValue != null;
 
         SuggestionProvider suggestions = null;
         String completionId = null;

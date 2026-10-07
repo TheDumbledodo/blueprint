@@ -134,10 +134,13 @@ class CommandExecutionTest {
 
     @Test
     void customMessagesAreUsed() throws CommandSyntaxException {
-        final CommandMessages messages = new CommandMessages();
+        manager.setMessages(new CommandMessages() {
 
-        messages.setPlayerOnlyCommand("<red>Players only!");
-        manager.setMessages(messages);
+            @Override
+            public String getPlayerOnlyCommand() {
+                return "<red>Players only!";
+            }
+        });
         manager.execute(console, "minigame join desert");
 
         assertEquals("Players only!", console.lastMessage());

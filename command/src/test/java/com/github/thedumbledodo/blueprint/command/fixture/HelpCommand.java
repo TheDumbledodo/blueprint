@@ -1,6 +1,6 @@
 package com.github.thedumbledodo.blueprint.command.fixture;
 
-import com.github.thedumbledodo.blueprint.command.annotation.CommandAlias;
+import com.github.thedumbledodo.blueprint.command.annotation.Command;
 import com.github.thedumbledodo.blueprint.command.annotation.CommandPermission;
 import com.github.thedumbledodo.blueprint.command.annotation.Default;
 import com.github.thedumbledodo.blueprint.command.annotation.Subcommand;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@CommandAlias("guide")
+@Command("guide")
 public final class HelpCommand extends BaseCommand {
 
     private final List<String> calls = new ArrayList<>();
