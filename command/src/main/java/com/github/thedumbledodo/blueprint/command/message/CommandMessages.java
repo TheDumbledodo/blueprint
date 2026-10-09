@@ -1,5 +1,9 @@
 package com.github.thedumbledodo.blueprint.command.message;
 
+import com.github.thedumbledodo.blueprint.command.model.CommandActor;
+
+import java.util.function.Function;
+
 public interface CommandMessages {
 
     CommandMessages DEFAULT = new CommandMessages() {
@@ -7,6 +11,10 @@ public interface CommandMessages {
 
     default String getPlayerOnlyCommand() {
         return "<#fa4943>This can only be done as a player!";
+    }
+
+    default String getConsoleOnlyCommand() {
+        return "<#fa4943>This can only be done from the console!";
     }
 
     default String getNoPermission() {
@@ -39,5 +47,9 @@ public interface CommandMessages {
 
     default String getCommandError() {
         return "<#fa4943>An error occurred while executing this command!";
+    }
+
+    static Function<CommandMessages, String> getWrongSender(CommandActor actor) {
+        return actor.isPlayer() ? CommandMessages::getConsoleOnlyCommand : CommandMessages::getPlayerOnlyCommand;
     }
 }

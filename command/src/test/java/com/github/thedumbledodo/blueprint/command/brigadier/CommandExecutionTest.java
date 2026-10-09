@@ -133,6 +133,21 @@ class CommandExecutionTest {
     }
 
     @Test
+    void playerGetsTheConsoleOnlyMessage() throws CommandSyntaxException {
+        manager.execute(player, "minigame shutdown");
+
+        assertTrue(command.getCalls().isEmpty());
+        assertEquals("This can only be done from the console!", player.lastMessage());
+    }
+
+    @Test
+    void consoleRunsConsoleOnlyCommands() throws CommandSyntaxException {
+        manager.execute(console, "minigame shutdown");
+
+        assertEquals(List.of("shutdown"), command.getCalls());
+    }
+
+    @Test
     void customMessagesAreUsed() throws CommandSyntaxException {
         manager.setMessages(new CommandMessages() {
 

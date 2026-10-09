@@ -88,6 +88,11 @@ public final class MinigameCommand extends BaseCommand {
         throw new CommandException("<red>Nope <value>", Placeholder.unparsed("value", "x"));
     }
 
+    @Subcommand("shutdown")
+    public void shutdown(TestConsole console) {
+        calls.add("shutdown");
+    }
+
     @Subcommand("whoami")
     public void whoami(com.github.thedumbledodo.blueprint.command.model.CommandActor actor) {
         calls.add("whoami " + actor.getName());

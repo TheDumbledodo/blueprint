@@ -43,7 +43,7 @@ public final class ExecutionContext {
         final Object sender = actor.getSender();
 
         if (!type.isInstance(sender)) {
-            throw new CommandException(CommandMessages::getPlayerOnlyCommand);
+            throw new CommandException(CommandMessages.getWrongSender(actor));
         }
         return type.cast(sender);
     }

@@ -126,7 +126,7 @@ public final class BrigadierCompiler<S> {
             final Class<?> senderType = node.senderType();
 
             if (senderType != null && senderType != CommandActor.class && !senderType.isInstance(actor.getSender())) {
-                throw new CommandException(CommandMessages::getPlayerOnlyCommand);
+                throw new CommandException(CommandMessages.getWrongSender(actor));
             }
 
             final Map<String, Object> values = new LinkedHashMap<>();
